@@ -19,27 +19,45 @@ namespace AccessibilityOptions
 
         private void FVRFireArm_Awake(On.FistVR.FVRFireArm.orig_Awake orig, FVRFireArm self)
         {
-            self.gameObject.AddComponent<LockableWeapon>();
+            orig(self);
+            self.gameObject.AddComponent<LockableWeapon>().durationForPoseLock = triggerDuration;
         }
 
         private void FVRFireArm_FVRUpdate(On.FistVR.FVRFireArm.orig_FVRUpdate orig, FVRFireArm self)
         {
             orig(self);
-            if (self.m_hand.Input.TriggerFloat >= 0.8f)
+            if (self.m_hand != null)
             {
-                if (self.IsHeld && !self.IsAltHeld)
+                if (!self.IsAltHeld)
                 {
                     ///checks numerous weapon types if they have their safeties enabled
                     ///Afterwards checks their chambers and triggers in that weapon's LockableWeapon class
                     ///
+                    bool isSafetyEnabled = false;
                     if (self is BoltActionRifle BAR)
                     {
-
+                        if (BAR.HasFireSelectorButton)
+                        {
+                            if (BAR.FireSelector_Modes[BAR.m_fireSelectorMode].ModeType == BoltActionRifle.FireSelectorModeType.Safe)
+                            {
+                                isSafetyEnabled = true;
+                            }
+                        }
                     }
                     else if (self is TubeFedShotgun TFS)
                     {
-
+                        if (TFS.HasSafety && TFS.IsSafetyEngaged)
+                        {
+                            isSafetyEnabled = true;
+                        }
                     }
+                    else
+                    {
+                        //if the current firearm is not any of the ones specified, it is excluded
+                        return;
+                    }
+
+                    self.GetComponent<LockableWeapon>().CheckChamberTrigger(isSafetyEnabled);
                 }
             }
         }
