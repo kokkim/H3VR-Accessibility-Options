@@ -12,7 +12,6 @@ namespace AccessibilityOptions
 	/// TODO:
 	/// - Fix wrist menu (hand check needs to check for OTHER hand)
 	/// - Make grenade pins pullable with a button/touchpad hold
-	/// - Upload to Git!
 	/// </summary>
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
@@ -79,7 +78,6 @@ namespace AccessibilityOptions
 
 		OneHandedWristMenu oneHandedWristMenu;
 		OneHandedSingleActionRevolver oneHandedSingleActionRevolver;
-		OneHandedGrenades oneHandedGrenades;
 
 		void Awake()
         {
@@ -96,9 +94,25 @@ namespace AccessibilityOptions
 
 			if (oneHandedGrenadesEnabled.Value)
             {
-				oneHandedGrenades = gameObject.AddComponent<OneHandedGrenades>();
-            }
-
+                On.FistVR.PinnedGrenade.Awake += PinnedGrenade_Awake;
+                On.FistVR.PinnedGrenade.UpdateInteraction += PinnedGrenade_UpdateInteraction;
+                On.FistVR.PinnedGrenade.IncreaseFuseSetting += PinnedGrenade_IncreaseFuseSetting;
+			}
         }
+
+        private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
+		{
+			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(grenadePinPullDuration.Value);
+			orig(self);
+		}
+		private void PinnedGrenade_UpdateInteraction(On.FistVR.PinnedGrenade.orig_UpdateInteraction orig, PinnedGrenade self, FVRViveHand hand)
+		{
+			self.GetComponent<OneHandedPinnedGrenade>().UpdateInteraction_Hooked(self, hand);
+			orig(self, hand);
+		}
+		private void PinnedGrenade_IncreaseFuseSetting(On.FistVR.PinnedGrenade.orig_IncreaseFuseSetting orig, PinnedGrenade self)
+		{
+			//this is left deliberately empty to completely overwrite the original input method for it
+		}
 	}
 }
