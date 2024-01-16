@@ -26,7 +26,7 @@ namespace AccessibilityOptions
 		public static ConfigEntry<bool> oneHandedSAREnabled;
 
 		public static ConfigEntry<bool> oneHandedGrenadesEnabled;
-		public static ConfigEntry<float> grenadePinPullDuration;
+		public static ConfigEntry<float> pinnedGrenadePinPullDuration;
 
 		private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
 		AssetBundle bundle;
@@ -70,8 +70,8 @@ namespace AccessibilityOptions
 												   true,
 												   "Enables/disables pulling pins by pressing the touchpad and AX face buttons");
 
-			grenadePinPullDuration = Config.Bind("Grenades",
-												 "Grenade Pin Pull Duration",
+			pinnedGrenadePinPullDuration = Config.Bind("Grenades",
+												 "Pinned Grenade Pin Pull Duration",
 												 0.5f,
 												 "How long (in seconds) the button needs to be held down to pull out a grenade pin");
 		}
@@ -97,12 +97,16 @@ namespace AccessibilityOptions
                 On.FistVR.PinnedGrenade.Awake += PinnedGrenade_Awake;
                 On.FistVR.PinnedGrenade.UpdateInteraction += PinnedGrenade_UpdateInteraction;
                 On.FistVR.PinnedGrenade.IncreaseFuseSetting += PinnedGrenade_IncreaseFuseSetting;
+
+                On.FistVR.FVRCappedGrenade.Start += FVRCappedGrenade_Start;
+                On.FistVR.FVRCappedGrenade.FVRFixedUpdate += FVRCappedGrenade_FVRFixedUpdate;
 			}
         }
 
+        #region pinned grenades
         private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
 		{
-			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(grenadePinPullDuration.Value);
+			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(pinnedGrenadePinPullDuration.Value);
 			orig(self);
 		}
 		private void PinnedGrenade_UpdateInteraction(On.FistVR.PinnedGrenade.orig_UpdateInteraction orig, PinnedGrenade self, FVRViveHand hand)
@@ -114,5 +118,22 @@ namespace AccessibilityOptions
 		{
 			//this is left deliberately empty to completely overwrite the original input method for it
 		}
+        #endregion
+
+        #region capped grenades
+        private void FVRCappedGrenade_Start(On.FistVR.FVRCappedGrenade.orig_Start orig, FVRCappedGrenade self)
+		{
+			orig(self);
+			self.gameObject.AddComponent<OneHandedCappedGrenade>().Hook();
+		}
+		private void FVRCappedGrenade_FVRFixedUpdate(On.FistVR.FVRCappedGrenade.orig_FVRFixedUpdate orig, FVRCappedGrenade self)
+		{
+			if (self.IsHeld && !self.m_IsFuseActive)
+            {
+				self.GetComponent<OneHandedCappedGrenade>().FVRFixedUpdate_Hooked(self);
+			}
+			orig(self);
+		}
+		#endregion
 	}
 }
