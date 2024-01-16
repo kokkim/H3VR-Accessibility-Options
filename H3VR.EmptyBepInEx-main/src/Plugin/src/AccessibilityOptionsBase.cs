@@ -10,8 +10,10 @@ namespace AccessibilityOptions
 {
 	/// <summary>
 	/// TODO:
-	/// - Fix wrist menu (hand check needs to check for OTHER hand)
-	/// - Make grenade pins pullable with a button/touchpad hold
+	/// - Implement weapon trigger locking
+	///		- Hook FVRFireArm.Start
+	///		- When the player holds the trigger down for X.X seconds when the gun's chamber is empty or when its safety is engaged, force release player's grip and lock the weapon to the player's torso
+	///		- When the player grabs the weapon again, it behaves normally again
 	/// </summary>
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
@@ -22,6 +24,9 @@ namespace AccessibilityOptions
 		public static ConfigEntry<float> verticalPointerOffset;
 		public static ConfigEntry<Color> pointerColor;
 		public static ConfigEntry<float> pointerScale;
+
+		public static ConfigEntry<bool> weaponPoseLockingEnabled;
+		public static ConfigEntry<float> weaponPoseLockingTriggerDuration;
 
 		public static ConfigEntry<bool> oneHandedSAREnabled;
 
@@ -57,8 +62,18 @@ namespace AccessibilityOptions
 									   0.01f,
 									   "How large (in meters) the pointer is");
 
-			//SINGLE-ACTION REVOLVER CONFIG-------------------------------------------------------------------------------------
+			//WEAPON POSE LOCKING CONFIG-------------------------------------------------------------------------------------
+			weaponPoseLockingEnabled = Config.Bind("Weapon Pose Locking",
+												   "Enable Weapon Pose Locking",
+												   true,
+												   "Enables/disables locking weapons in mid-air by holding down the trigger on a safe or empty chamber");
 
+			weaponPoseLockingTriggerDuration = Config.Bind("Weapon Pose Locking",
+														 "Pose Locking Trigger Hold Duration",
+														 0.5f,
+														 "How long the trigger needs to be held down for the weapon to get locked");
+
+			//SINGLE-ACTION REVOLVER CONFIG-------------------------------------------------------------------------------------
 			oneHandedSAREnabled = Config.Bind("Single-Action Revolvers",
 											  "Enable One-Handed Single-Action Revolvers",
 											  true,
@@ -73,10 +88,11 @@ namespace AccessibilityOptions
 			pinnedGrenadePinPullDuration = Config.Bind("Grenades",
 												 "Pinned Grenade Pin Pull Duration",
 												 0.5f,
-												 "How long (in seconds) the button needs to be held down to pull out a grenade pin");
+												 "How long (in seconds) the button needs to be held down to pull out a grenade pin (set to 0 for instant)");
 		}
 
 		OneHandedWristMenu oneHandedWristMenu;
+		WeaponPoseLock weaponPoseLock;
 		OneHandedSingleActionRevolver oneHandedSingleActionRevolver;
 
 		void Awake()
@@ -86,6 +102,12 @@ namespace AccessibilityOptions
 				oneHandedWristMenu = gameObject.AddComponent<OneHandedWristMenu>();
 				oneHandedWristMenu.Hook(verticalPointerOffset.Value, pointerColor.Value, pointerScale.Value, bundle);
 			}
+
+			if (weaponPoseLockingEnabled.Value)
+            {
+				weaponPoseLock = gameObject.AddComponent<WeaponPoseLock>();
+				weaponPoseLock.Hook(weaponPoseLockingTriggerDuration.Value);
+            }
 
 			if (oneHandedSAREnabled.Value)
 			{
@@ -103,8 +125,8 @@ namespace AccessibilityOptions
 			}
         }
 
-        #region pinned grenades
-        private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
+		#region pinned grenades
+		private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
 		{
 			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(pinnedGrenadePinPullDuration.Value);
 			orig(self);
