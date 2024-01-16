@@ -27,8 +27,6 @@ namespace AccessibilityOptions
             //touchpad/button down starts pin pull
             if ((hand.IsInStreamlinedMode && hand.Input.BYButtonDown) || (!hand.IsInStreamlinedMode && hand.Input.TouchpadDown))
             {
-                if (self.m_isPinPulled && !self.m_isLeverReleased) Debug.Log("lever should be released here");
-
                 for (int i = 0; i < self.m_rings.Count; i++)
                 {
                     if (!self.m_rings[i].HasPinDetached() && !self.m_rings[i].IsHeld && hasPinPullReset)

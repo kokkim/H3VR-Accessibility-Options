@@ -71,8 +71,8 @@ namespace AccessibilityOptions
 												   "Enables/disables pulling pins by pressing the touchpad and AX face buttons");
 
 			grenadePinPullDuration = Config.Bind("Grenades",
-												 "(WIP) Grenade Pin Pull Duration",
-												 1f,
+												 "Grenade Pin Pull Duration",
+												 0.5f,
 												 "How long (in seconds) the button needs to be held down to pull out a grenade pin");
 		}
 
