@@ -13,7 +13,16 @@ namespace AccessibilityOptions
         public float durationForPoseLock;
 
         float curTriggerDuration;
-        bool isValidForPoseLock, poseLockEnabled;
+        bool isValidForPoseLock;
+
+        enum WeaponLockState
+        {
+            Unlocked,
+            Locking,
+            Locked
+        };
+
+        WeaponLockState lockState;
 
         void Awake()
         {
@@ -28,7 +37,6 @@ namespace AccessibilityOptions
             {
                 if (isSafetyEngaged)
                 {
-                    Debug.Log("Safety is engaged, valid for locking!");
                     isValidForPoseLock = true;
                     return;
                 }
@@ -45,42 +53,82 @@ namespace AccessibilityOptions
                     }
                     if (chamberSafe)
                     {
-                        Debug.Log("Safety not engaged but chamber safe, valid for locking!");
                         isValidForPoseLock = true;
                         return;
                     }
                 }
             }
 
-            Debug.Log("No safety or safety off, un-pulled trigger or loaded chamber!");
             isValidForPoseLock = false;
         }
 
-        void Update()
+        void FixedUpdate()
         {
-            if (isValidForPoseLock)
+            switch (lockState)
             {
-                if (!poseLockEnabled)
-                {
-                    curTriggerDuration += Time.deltaTime;
-                    Debug.Log("curTriggerDuration increased to " + curTriggerDuration.ToString("F4"));
-
-                if (curTriggerDuration > durationForPoseLock)
+                case WeaponLockState.Unlocked:
                     {
-                        poseLockEnabled = true;
+                        curTriggerDuration = 0f;
+                        if (isValidForPoseLock)
+                        {
+                            lockState = WeaponLockState.Locking;
+                        }
+
+                        break;
                     }
-                }
+                case WeaponLockState.Locking:
+                    {
+                        if (!isValidForPoseLock)
+                        {
+                            lockState = WeaponLockState.Unlocked;
+                            break;
+                        }
+
+                        curTriggerDuration += Time.fixedDeltaTime;
+                        Debug.Log("curTriggerDuration increased to " + curTriggerDuration.ToString("F4"));
+                        if (curTriggerDuration > durationForPoseLock)
+                        {
+                            lockState = WeaponLockState.Locked;
+                        }
+
+                        break;
+                    }
+                case WeaponLockState.Locked:
+                    {
+                        Debug.Log(thisFirearm.gameObject.name + " is pose locked!");
+
+                        LockWeapon();
+                        break;
+                    }
             }
-            else
+        }
+
+        void LockWeapon()
+        {
+            //To prevent locking two weapons simultaneously
+            if (WeaponPoseLock.instance.currentlyLockedWeapon == null)
             {
-                poseLockEnabled = false;
-                curTriggerDuration = 0f;
+                WeaponPoseLock.instance.currentlyLockedWeapon = this;
+                thisFirearm.SetIsKinematicLocked(true);
+                thisFirearm.EndInteraction(thisFirearm.m_hand);
+
+                WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
+                WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
             }
 
-            if (poseLockEnabled)
+            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
             {
-                Debug.Log(thisFirearm.gameObject.name + " is pose locked!");
+                //Weapon locking code here
+                thisFirearm.gameObject.transform.position = WeaponPoseLock.instance.lockedWeaponProxy.transform.position;
+                thisFirearm.gameObject.transform.rotation = WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation;
             }
+        }
+
+        public void UnlockWeapon()
+        {
+            WeaponPoseLock.instance.currentlyLockedWeapon = null;
+            lockState = WeaponLockState.Unlocked;
+            thisFirearm.SetIsKinematicLocked(false);
         }
     }
 }

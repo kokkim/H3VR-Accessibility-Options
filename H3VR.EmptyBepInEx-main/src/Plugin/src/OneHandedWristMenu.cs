@@ -84,7 +84,7 @@ namespace AccessibilityOptions
                                 curPointable.EndPoint(curHand);  //failsafe to prevent multiple buttons being highlighted simultaneously
                             }
                             curPointable = newPointable;
-                            curPointable.OnPoint(curHand);
+                            curPointable.OnPoint(curHand);  //button activation via trigger pull is handled here
                         }
                     }
                 }

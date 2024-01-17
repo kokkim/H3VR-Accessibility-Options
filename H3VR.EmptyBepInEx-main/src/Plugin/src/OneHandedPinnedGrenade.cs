@@ -15,7 +15,6 @@ namespace AccessibilityOptions
         PinnedGrenadeRing? curRing;
 
         bool hasPinPullReset = true;
-        bool hasTriggerReset = true;
 
         public void Hook(float _pinPullDuration)
         {
@@ -52,12 +51,11 @@ namespace AccessibilityOptions
             if (pinBeingPulled) RemoteUpdatePinPos();
 
             //trigger pull advances Cyber Grenade fuse setting
-            if (hand.Input.TriggerFloat >= 0.8f && hasTriggerReset)
+            if (hand.Input.TriggerFloat >= 0.8f && self.m_hasTriggeredUpSinceBegin)
             {
-                hasTriggerReset = false;
+                self.m_hasTriggeredUpSinceBegin = false;
                 if (self.FuseCylinder != null && !self.m_isPinPulled) OneHandedIncreaseFuseSetting(self);
             }
-            else if (hand.Input.TriggerFloat < 0.1f) hasTriggerReset = true;
         }
 
         #region fuse length
