@@ -83,7 +83,7 @@ namespace AccessibilityOptions
             isValidForPoseLock = false;
         }
 
-        void FixedUpdate()
+        void Update()
         {
             switch (lockState)
             {
@@ -107,7 +107,7 @@ namespace AccessibilityOptions
                             break;
                         }
 
-                        curTriggerDuration += Time.fixedDeltaTime;
+                        curTriggerDuration += Time.deltaTime;
                         if (curTriggerDuration > durationForPoseLock)
                         {
                             lockState = WeaponLockState.Locked;
@@ -118,13 +118,48 @@ namespace AccessibilityOptions
                     }
                 case WeaponLockState.Locked:
                     {
-                        LockWeapon();
+                        if (WeaponPoseLock.instance.currentlyLockedWeapon == null) LockWeapon();
+                        else
+                        {
+                            if (!thisFirearm.RootRigidbody.isKinematic) thisFirearm.RootRigidbody.isKinematic = true;
+                            if (thisFirearm.transform.parent != null) thisFirearm.transform.SetParent(null);
+
+                            thisFirearm.gameObject.transform.position = WeaponPoseLock.instance.lockedWeaponProxy.transform.position;
+                            thisFirearm.gameObject.transform.rotation = WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation;
+                        }
                         break;
                     }
             }
         }
 
+        //old implementation
         void LockWeapon()
+        {
+            //To prevent locking two weapons simultaneously
+            if (WeaponPoseLock.instance.currentlyLockedWeapon == null)
+            {
+                WeaponPoseLock.instance.currentlyLockedWeapon = this;
+
+                thisFirearm.IsPivotLocked = true;       //Unnecessary?
+                thisFirearm.RootRigidbody.isKinematic = true;
+
+                WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
+                WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
+            }
+        }
+
+        public void UnlockWeapon()
+        {
+            isValidForPoseLock = false;
+            WeaponPoseLock.instance.currentlyLockedWeapon = null;
+            lockState = WeaponLockState.Unlocked;
+            Debug.Log("Locked -> Unlocked");
+            thisFirearm.IsPivotLocked = false;      //Unnecessary?
+            thisFirearm.IsKinematicLocked = false;
+        }
+
+        //old implementation
+        /*void LockWeapon()
         {
             //To prevent locking two weapons simultaneously
             if (WeaponPoseLock.instance.currentlyLockedWeapon == null)
@@ -146,8 +181,8 @@ namespace AccessibilityOptions
             if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
             {
                 //Weapon locking code here
-                /*thisFirearm.gameObject.transform.position = WeaponPoseLock.instance.lockedWeaponProxy.transform.position;
-                thisFirearm.gameObject.transform.rotation = WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation;*/
+                thisFirearm.gameObject.transform.position = WeaponPoseLock.instance.lockedWeaponProxy.transform.position;
+                thisFirearm.gameObject.transform.rotation = WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation;
             }
         }
 
@@ -160,6 +195,6 @@ namespace AccessibilityOptions
             thisFirearm.SetIsKinematicLocked(false);
 
             thisFirearm.SetParentage(null);
-        }
+        }*/
     }
 }
