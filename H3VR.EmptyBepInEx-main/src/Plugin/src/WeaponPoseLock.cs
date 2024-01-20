@@ -53,8 +53,13 @@ namespace AccessibilityOptions
             if (currentlyLockedWeapon != null)
             {
                 LockableWeapon thisLockableWeapon = self.gameObject.GetComponent<LockableWeapon>();
+
                 if (thisLockableWeapon != null && thisLockableWeapon == currentlyLockedWeapon)
                 {
+                    if (thisLockableWeapon.thisFirearm.IsAltHeld && thisLockableWeapon.thisFirearm.m_hand.OtherHand.m_currentInteractable != thisLockableWeapon.thisFirearm)
+                    {
+                        return;
+                    }
                     thisLockableWeapon.UnlockWeapon();
                 }
             }

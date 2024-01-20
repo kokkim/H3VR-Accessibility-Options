@@ -21,7 +21,7 @@ namespace AccessibilityOptions
 {
     class LockableWeapon : MonoBehaviour
     {
-        FVRFireArm thisFirearm;
+        public FVRFireArm thisFirearm;
         List<FVRFireArmChamber> chambers;
 
         public float durationForPoseLock;
