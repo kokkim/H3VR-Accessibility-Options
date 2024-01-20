@@ -9,9 +9,10 @@ namespace AccessibilityOptions
     {
         public static WeaponPoseLock instance;
 
-        float triggerDuration;
-        public LockableWeapon? currentlyLockedWeapon;
+        public Dictionary<Type, Type> LockableWeaponDict = new();
 
+        float triggerDuration;
+        public LockableWeapon currentlyLockedWeapon;
         public GameObject lockedWeaponProxy;
 
         public void Hook(float _triggerDuration)
@@ -29,6 +30,9 @@ namespace AccessibilityOptions
             On.FistVR.FVRQuickBeltSlot.MoveContentsInstant += FVRQuickBeltSlot_MoveContentsInstant;
             On.FistVR.FVRQuickBeltSlot.MoveContents += FVRQuickBeltSlot_MoveContents;
             On.FistVR.FVRQuickBeltSlot.MoveContentsCheap += FVRQuickBeltSlot_MoveContentsCheap;
+
+            LockableWeaponDict[typeof(BoltActionRifle)] = typeof(LockableBoltActionRifle);
+            LockableWeaponDict[typeof(TubeFedShotgun)] = typeof(LockableTubeFedShotgun);
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -42,8 +46,15 @@ namespace AccessibilityOptions
 
         private void FVRFireArm_Awake(On.FistVR.FVRFireArm.orig_Awake orig, FVRFireArm self)
         {
+            ///New implementation:
+            ///Create a dictionary with weapon types as keys and their pose lock patches as values
+            ///When a weapon spawns, it looks for a key matching its type, and adds the component to it
+
             orig(self);
-            self.gameObject.AddComponent<LockableWeapon>().durationForPoseLock = triggerDuration;
+
+            LockableWeaponDict.TryGetValue(self.GetType(), out Type temp);
+            LockableWeapon newLockable = (LockableWeapon)self.gameObject.AddComponent(temp);
+            newLockable.durationForPoseLock = triggerDuration;
         }
 
         //To check if the player grabs the currently locked weapon
@@ -72,34 +83,14 @@ namespace AccessibilityOptions
             {
                 if (!self.IsAltHeld)
                 {
-                    ///checks numerous weapon types if they have their safeties enabled
-                    ///Afterwards checks their chambers and triggers in that weapon's LockableWeapon class
-                    ///
-                    bool isSafetyEnabled = false;
-                    if (self is BoltActionRifle BAR)
-                    {
-                        if (BAR.HasFireSelectorButton)
-                        {
-                            if (BAR.FireSelector_Modes[BAR.m_fireSelectorMode].ModeType == BoltActionRifle.FireSelectorModeType.Safe)
-                            {
-                                isSafetyEnabled = true;
-                            }
-                        }
-                    }
-                    else if (self is TubeFedShotgun TFS)
-                    {
-                        if (TFS.HasSafety && TFS.IsSafetyEngaged)
-                        {
-                            isSafetyEnabled = true;
-                        }
-                    }
-                    else
-                    {
-                        //if the current firearm is not any of the ones specified, it is excluded
-                        return;
-                    }
+                    ///New implementation:
+                    ///Create a virtual function to LockableWeapon that is called from here
+                    ///For each weapon that needs custom checks, make an override function that inherits from LockableWeapon
+                    LockableWeapon curWep = self.GetComponent<LockableWeapon>();
 
-                    self.GetComponent<LockableWeapon>().CheckChamberTrigger(isSafetyEnabled);
+                    bool isSafetyEnabled = curWep.CheckSafety();
+                    curWep.CheckChamberTrigger(isSafetyEnabled);
+                    //if the current firearm is not any of the ones specified, it is excluded
                 }
             }
         }
