@@ -12,13 +12,25 @@ namespace AccessibilityOptions
         protected virtual void Awake()
         {
             Target = GetComponent<T>();     //To assign the correct weapon type to T
+
+            chambers = GetComponent<FVRFireArm>().GetChambers();
+            thisFirearm = GetComponent<FVRFireArm>();
+            durationForPoseLock = WeaponPoseLock.instance.triggerDuration;
+        }
+
+        void OnDestroy()
+        {
+            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
+            {
+                UnlockWeapon();
+            }
         }
     }
 
     public abstract class LockableWeapon : MonoBehaviour
     {
         public FVRFireArm thisFirearm;
-        List<FVRFireArmChamber> chambers;
+        protected List<FVRFireArmChamber> chambers;
 
         public float durationForPoseLock;
 
@@ -34,21 +46,14 @@ namespace AccessibilityOptions
 
         WeaponLockState lockState;
 
-        void Awake()
-        {
-            chambers = GetComponent<FVRFireArm>().GetChambers();
-            thisFirearm = GetComponent<FVRFireArm>();
-        }
-
-        void OnDestroy()
-        {
-            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
-            {
-                UnlockWeapon();
-            }
-        }
-
         public abstract bool CheckSafety();
+
+        public virtual bool IsBoltMoving()
+        {
+            Debug.Log("base.IsBoltForward()");
+            //returns true for weapons that cannot be fully automatic
+            return false;
+        }
 
         public void CheckChamberTrigger(bool isSafetyEngaged)
         {
@@ -77,7 +82,6 @@ namespace AccessibilityOptions
                     }
                 }
             }
-
             isValidForPoseLock = false;
         }
 
@@ -91,17 +95,17 @@ namespace AccessibilityOptions
                         if (isValidForPoseLock)
                         {
                             lockState = WeaponLockState.Locking;
-                            Debug.Log("Unlocked -> Locking");
+                            //Debug.Log("Unlocked -> Locking");
                         }
 
                         break;
                     }
                 case WeaponLockState.Locking:
                     {
-                        if (!isValidForPoseLock && thisFirearm.m_hand?.Input.TriggerFloat < 0.6f)
+                        if (!isValidForPoseLock || thisFirearm.m_hand?.Input.TriggerFloat < 0.6f || IsBoltMoving())
                         {
                             lockState = WeaponLockState.Unlocked;
-                            Debug.Log("Locking -> Unlocked");
+                            //Debug.Log("Locking -> Unlocked");
                             break;
                         }
 
@@ -109,7 +113,7 @@ namespace AccessibilityOptions
                         if (curTriggerDuration > durationForPoseLock)
                         {
                             lockState = WeaponLockState.Locked;
-                            Debug.Log("Locking -> Locked");
+                            //Debug.Log("Locking -> Locked");
                         }
 
                         break;
@@ -150,9 +154,9 @@ namespace AccessibilityOptions
             isValidForPoseLock = false;
             WeaponPoseLock.instance.currentlyLockedWeapon = null;
             lockState = WeaponLockState.Unlocked;
-            Debug.Log("Locked -> Unlocked");
             thisFirearm.IsPivotLocked = false;      //Unnecessary?
             thisFirearm.IsKinematicLocked = false;
+            //Debug.Log("Locked -> Unlocked");
         }
     }
 }

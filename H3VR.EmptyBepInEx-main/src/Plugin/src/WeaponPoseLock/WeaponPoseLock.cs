@@ -11,7 +11,7 @@ namespace AccessibilityOptions
 
         public Dictionary<Type, Type> LockableWeaponDict = new();
 
-        float triggerDuration;
+        public float triggerDuration;
         public LockableWeapon currentlyLockedWeapon;
         public GameObject lockedWeaponProxy;
 
@@ -31,8 +31,13 @@ namespace AccessibilityOptions
             On.FistVR.FVRQuickBeltSlot.MoveContents += FVRQuickBeltSlot_MoveContents;
             On.FistVR.FVRQuickBeltSlot.MoveContentsCheap += FVRQuickBeltSlot_MoveContentsCheap;
 
+            //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
+
+            //temporary, will add an automatic method later
             LockableWeaponDict[typeof(BoltActionRifle)] = typeof(LockableBoltActionRifle);
             LockableWeaponDict[typeof(TubeFedShotgun)] = typeof(LockableTubeFedShotgun);
+            LockableWeaponDict[typeof(ClosedBoltWeapon)] = typeof(LockableClosedBoltWeapon);
+            LockableWeaponDict[typeof(OpenBoltReceiver)] = typeof(LockableOpenBoltReceiver);
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -53,8 +58,11 @@ namespace AccessibilityOptions
             orig(self);
 
             LockableWeaponDict.TryGetValue(self.GetType(), out Type temp);
-            LockableWeapon newLockable = (LockableWeapon)self.gameObject.AddComponent(temp);
-            newLockable.durationForPoseLock = triggerDuration;
+
+            if (temp != null)
+            {
+                LockableWeapon newLockable = (LockableWeapon)self.gameObject.AddComponent(temp);
+            }
         }
 
         //To check if the player grabs the currently locked weapon
@@ -88,8 +96,12 @@ namespace AccessibilityOptions
                     ///For each weapon that needs custom checks, make an override function that inherits from LockableWeapon
                     LockableWeapon curWep = self.GetComponent<LockableWeapon>();
 
-                    bool isSafetyEnabled = curWep.CheckSafety();
-                    curWep.CheckChamberTrigger(isSafetyEnabled);
+                    if (curWep != null)
+                    {
+                        bool isSafetyEnabled = curWep.CheckSafety();
+                        curWep.CheckChamberTrigger(isSafetyEnabled);
+                    }
+
                     //if the current firearm is not any of the ones specified, it is excluded
                 }
             }
