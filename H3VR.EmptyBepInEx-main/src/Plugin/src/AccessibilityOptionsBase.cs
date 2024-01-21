@@ -10,10 +10,7 @@ namespace AccessibilityOptions
 {
 	/// <summary>
 	/// TODO:
-	/// - Implement weapon trigger locking
-	///		- Hook FVRFireArm.Start
-	///		- When the player holds the trigger down for X.X seconds when the gun's chamber is empty or when its safety is engaged, force release player's grip and lock the weapon to the player's torso
-	///		- When the player grabs the weapon again, it behaves normally again
+	/// - Add weapon pose locking edgecase to single-fire and burst
 	/// </summary>
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]

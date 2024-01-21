@@ -3,26 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using FistVR;
 
-/// <summary>
-/// PROBABLY NEEDS COMPLETE REWRITE
-/// New idea: use quickbelt slots?
-/// - Can still operate bolts and slides
-/// - Can still load magazines
-/// When player triggers the lock, script-wise the player lets go, but the quickbelted weapon's pos is overwritten to the let-go position relative to the player
-/// What if there is no quickbelt slot to use?
-/// - Make a new quickbelt slot just for this purpose
-/// - Use a custom method for storing and moving the weapon
-///     - Probably better, causes fewer edgecase issues with scene saving/loading
-///     - Still hook onto quickbelt code to move the weapon?
-/// </summary>
-
-
 namespace AccessibilityOptions
 {
-    class LockableWeapon : MonoBehaviour
+    public abstract class LockableWeapon<T> : LockableWeapon where T : MonoBehaviour
+    {
+        protected T Target { get; private set; }
+
+        protected virtual void Awake()
+        {
+            Target = GetComponent<T>();     //To assign the correct weapon type to T
+
+            chambers = GetComponent<FVRFireArm>().GetChambers();
+            thisFirearm = GetComponent<FVRFireArm>();
+            durationForPoseLock = WeaponPoseLock.instance.triggerDuration;
+        }
+
+        void OnDestroy()
+        {
+            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
+            {
+                UnlockWeapon();
+            }
+        }
+    }
+
+    public abstract class LockableWeapon : MonoBehaviour
     {
         public FVRFireArm thisFirearm;
-        List<FVRFireArmChamber> chambers;
+        protected List<FVRFireArmChamber> chambers;
 
         public float durationForPoseLock;
 
@@ -38,18 +46,13 @@ namespace AccessibilityOptions
 
         WeaponLockState lockState;
 
-        void Awake()
-        {
-            chambers = GetComponent<FVRFireArm>().GetChambers();
-            thisFirearm = GetComponent<FVRFireArm>();
-        }
+        public abstract bool CheckSafety();
 
-        void OnDestroy()
+        public virtual bool IsBoltMoving()
         {
-            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
-            {
-                UnlockWeapon();
-            }
+            Debug.Log("base.IsBoltForward()");
+            //returns true for weapons that cannot be fully automatic
+            return false;
         }
 
         public void CheckChamberTrigger(bool isSafetyEngaged)
@@ -79,7 +82,6 @@ namespace AccessibilityOptions
                     }
                 }
             }
-
             isValidForPoseLock = false;
         }
 
@@ -93,17 +95,17 @@ namespace AccessibilityOptions
                         if (isValidForPoseLock)
                         {
                             lockState = WeaponLockState.Locking;
-                            Debug.Log("Unlocked -> Locking");
+                            //Debug.Log("Unlocked -> Locking");
                         }
 
                         break;
                     }
                 case WeaponLockState.Locking:
                     {
-                        if (!isValidForPoseLock && thisFirearm.m_hand?.Input.TriggerFloat < 0.6f)
+                        if (!isValidForPoseLock || thisFirearm.m_hand?.Input.TriggerFloat < 0.6f || IsBoltMoving())
                         {
                             lockState = WeaponLockState.Unlocked;
-                            Debug.Log("Locking -> Unlocked");
+                            //Debug.Log("Locking -> Unlocked");
                             break;
                         }
 
@@ -111,7 +113,7 @@ namespace AccessibilityOptions
                         if (curTriggerDuration > durationForPoseLock)
                         {
                             lockState = WeaponLockState.Locked;
-                            Debug.Log("Locking -> Locked");
+                            //Debug.Log("Locking -> Locked");
                         }
 
                         break;
@@ -132,7 +134,6 @@ namespace AccessibilityOptions
             }
         }
 
-        //old implementation
         void LockWeapon()
         {
             //To prevent locking two weapons simultaneously
@@ -153,48 +154,9 @@ namespace AccessibilityOptions
             isValidForPoseLock = false;
             WeaponPoseLock.instance.currentlyLockedWeapon = null;
             lockState = WeaponLockState.Unlocked;
-            Debug.Log("Locked -> Unlocked");
             thisFirearm.IsPivotLocked = false;      //Unnecessary?
             thisFirearm.IsKinematicLocked = false;
+            //Debug.Log("Locked -> Unlocked");
         }
-
-        //old implementation
-        /*void LockWeapon()
-        {
-            //To prevent locking two weapons simultaneously
-            if (WeaponPoseLock.instance.currentlyLockedWeapon == null)
-            {
-                WeaponPoseLock.instance.currentlyLockedWeapon = this;
-                thisFirearm.SetIsKinematicLocked(true);
-                thisFirearm.EndInteraction(thisFirearm.m_hand);
-
-                if (WeaponPoseLock.instance.lockedWeaponProxy == null)
-                {
-                    Debug.LogError("lockedWeaponProxy is not set up!");
-                    return;
-                }
-                WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
-                WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
-                thisFirearm.SetParentage(WeaponPoseLock.instance.lockedWeaponProxy.transform);
-            }
-
-            if (WeaponPoseLock.instance.currentlyLockedWeapon == this)
-            {
-                //Weapon locking code here
-                thisFirearm.gameObject.transform.position = WeaponPoseLock.instance.lockedWeaponProxy.transform.position;
-                thisFirearm.gameObject.transform.rotation = WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation;
-            }
-        }
-
-        public void UnlockWeapon()
-        {
-            isValidForPoseLock = false;
-            WeaponPoseLock.instance.currentlyLockedWeapon = null;
-            lockState = WeaponLockState.Unlocked;
-            Debug.Log("Locked -> Unlocked");
-            thisFirearm.SetIsKinematicLocked(false);
-
-            thisFirearm.SetParentage(null);
-        }*/
     }
 }
