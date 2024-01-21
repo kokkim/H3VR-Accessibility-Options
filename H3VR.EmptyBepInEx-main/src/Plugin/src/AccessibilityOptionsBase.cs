@@ -119,11 +119,14 @@ namespace AccessibilityOptions
 
                 On.FistVR.FVRCappedGrenade.Start += FVRCappedGrenade_Start;
                 On.FistVR.FVRCappedGrenade.FVRFixedUpdate += FVRCappedGrenade_FVRFixedUpdate;
+
+                //For debugging, remove before build
+                On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
 			}
         }
 
-		#region pinned grenades
-		private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
+        #region pinned grenades
+        private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
 		{
 			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(pinnedGrenadePinPullDuration.Value);
 			orig(self);
@@ -154,5 +157,24 @@ namespace AccessibilityOptions
 			orig(self);
 		}
 		#endregion
+
+		private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
+		{
+			orig(self, col);
+			float impactMagnitude = col.relativeVelocity.magnitude;
+
+			if (impactMagnitude < self.HitThreshold_Ignore)
+            {
+				Debug.Log("Impact magnitude is " + impactMagnitude + ", ignoring collision");
+            }
+			else if (impactMagnitude > self.HitThreshold_High)
+            {
+				Debug.Log("Impact magnitude is " + impactMagnitude + ", high impact");
+			}
+			else if (impactMagnitude > self.HitThreshold_Medium)
+			{
+				Debug.Log("Impact magnitude is " + impactMagnitude + ", medium impact");
+			}
+		}
 	}
 }

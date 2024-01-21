@@ -38,6 +38,7 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(TubeFedShotgun)] = typeof(LockableTubeFedShotgun);
             LockableWeaponDict[typeof(ClosedBoltWeapon)] = typeof(LockableClosedBoltWeapon);
             LockableWeaponDict[typeof(OpenBoltReceiver)] = typeof(LockableOpenBoltReceiver);
+            LockableWeaponDict[typeof(Handgun)] = typeof(LockableHandgun);
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -98,8 +99,7 @@ namespace AccessibilityOptions
 
                     if (curWep != null)
                     {
-                        bool isSafetyEnabled = curWep.CheckSafety();
-                        curWep.CheckChamberTrigger(isSafetyEnabled);
+                        curWep.CheckChamberTriggerAmt(curWep.CanFire());
                     }
 
                     //if the current firearm is not any of the ones specified, it is excluded

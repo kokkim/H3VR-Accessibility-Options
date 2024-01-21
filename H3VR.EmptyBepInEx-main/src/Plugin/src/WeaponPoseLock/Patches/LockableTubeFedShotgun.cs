@@ -15,13 +15,10 @@ namespace AccessibilityOptions
             TFS = thisFirearm as TubeFedShotgun;
         }
 
-        public override bool CheckSafety()
+        public override bool CanFire()
         {
-            if (TFS != null && TFS.HasSafety && TFS.IsSafetyEngaged)
-            {
-                return true;
-            }
-            return false;
+            if (TFS != null && TFS.HasSafety && TFS.IsSafetyEngaged) return false;
+            return true;
         }
 
         public override bool IsBoltMoving()

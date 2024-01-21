@@ -8,6 +8,7 @@ namespace AccessibilityOptions
     public class LockableClosedBoltWeapon : LockableWeapon<ClosedBoltWeapon>
     {
         ClosedBoltWeapon CBW;
+        ClosedBoltWeapon.FireSelectorModeType fireMode;
 
         protected override void Awake()
         {
@@ -15,17 +16,22 @@ namespace AccessibilityOptions
             CBW = thisFirearm as ClosedBoltWeapon;
         }
 
-        public override bool CheckSafety()
+        public override bool CanFire()
         {
-            if (CBW != null && CBW.HasFireSelectorButton)
+            if (CBW != null)
             {
-                if ((CBW.FireSelector_Modes.Length > 0 && CBW.FireSelector_Modes[CBW.m_fireSelectorMode].ModeType == ClosedBoltWeapon.FireSelectorModeType.Safe)
-                || (CBW.FireSelector_Modes2.Length > 0 && CBW.FireSelector_Modes2[CBW.m_fireSelectorMode].ModeType == ClosedBoltWeapon.FireSelectorModeType.Safe))
-                {
-                    return true;
-                }
+                fireMode = CBW.FireSelector_Modes[CBW.m_fireSelectorMode].ModeType;
+
+                //Safe
+                if (fireMode == ClosedBoltWeapon.FireSelectorModeType.Safe) return false;
+
+                //Single
+                if (fireMode == ClosedBoltWeapon.FireSelectorModeType.Single && !CBW.m_hasTriggerReset) return false;
+
+                //Burst & hyperburst
+                if ((fireMode == ClosedBoltWeapon.FireSelectorModeType.Burst && CBW.m_CamBurst == 0) || fireMode == ClosedBoltWeapon.FireSelectorModeType.SuperFastBurst) return false;
             }
-            return false;
+            return true;
         }
 
         public override bool IsBoltMoving()

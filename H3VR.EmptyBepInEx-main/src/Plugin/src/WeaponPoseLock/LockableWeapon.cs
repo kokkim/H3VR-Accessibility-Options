@@ -13,8 +13,8 @@ namespace AccessibilityOptions
         {
             Target = GetComponent<T>();     //To assign the correct weapon type to T
 
-            chambers = GetComponent<FVRFireArm>().GetChambers();
             thisFirearm = GetComponent<FVRFireArm>();
+            chambers = thisFirearm.GetChambers();
             durationForPoseLock = WeaponPoseLock.instance.triggerDuration;
         }
 
@@ -46,20 +46,19 @@ namespace AccessibilityOptions
 
         WeaponLockState lockState;
 
-        public abstract bool CheckSafety();
+        public abstract bool CanFire();
 
         public virtual bool IsBoltMoving()
         {
-            Debug.Log("base.IsBoltForward()");
             //returns true for weapons that cannot be fully automatic
             return false;
         }
 
-        public void CheckChamberTrigger(bool isSafetyEngaged)
+        public void CheckChamberTriggerAmt(bool _isFiring)
         {
             if (thisFirearm.m_hand?.Input.TriggerFloat >= 0.6f)
             {
-                if (isSafetyEngaged)
+                if (!_isFiring)
                 {
                     isValidForPoseLock = true;
                     return;
@@ -120,6 +119,11 @@ namespace AccessibilityOptions
                     }
                 case WeaponLockState.Locked:
                     {
+                        if ((WeaponPoseLock.instance.currentlyLockedWeapon != null && WeaponPoseLock.instance.currentlyLockedWeapon != this))
+                        {
+                            WeaponPoseLock.instance.currentlyLockedWeapon.UnlockWeapon();
+                        }
+
                         if (WeaponPoseLock.instance.currentlyLockedWeapon == null) LockWeapon();
                         else
                         {
@@ -136,17 +140,14 @@ namespace AccessibilityOptions
 
         void LockWeapon()
         {
-            //To prevent locking two weapons simultaneously
-            if (WeaponPoseLock.instance.currentlyLockedWeapon == null)
-            {
-                WeaponPoseLock.instance.currentlyLockedWeapon = this;
+            WeaponPoseLock.instance.currentlyLockedWeapon = this;
 
-                thisFirearm.IsPivotLocked = true;       //Unnecessary?
-                thisFirearm.RootRigidbody.isKinematic = true;
+            thisFirearm.IsPivotLocked = true;       //Unnecessary?
+            thisFirearm.IsKinematicLocked = true;
+            thisFirearm.RootRigidbody.isKinematic = true;
 
-                WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
-                WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
-            }
+            WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
+            WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
         }
 
         public void UnlockWeapon()
@@ -154,8 +155,10 @@ namespace AccessibilityOptions
             isValidForPoseLock = false;
             WeaponPoseLock.instance.currentlyLockedWeapon = null;
             lockState = WeaponLockState.Unlocked;
+
             thisFirearm.IsPivotLocked = false;      //Unnecessary?
             thisFirearm.IsKinematicLocked = false;
+            thisFirearm.RootRigidbody.isKinematic = false;
             //Debug.Log("Locked -> Unlocked");
         }
     }
