@@ -10,7 +10,8 @@ namespace AccessibilityOptions
 {
 	/// <summary>
 	/// TODO:
-	/// - Add weapon pose locking edgecase to single-fire and burst
+	/// - Unlock weapon upon detecting a gunshot
+	///		- Use the OnShotFired event
 	/// </summary>
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
@@ -121,7 +122,7 @@ namespace AccessibilityOptions
                 On.FistVR.FVRCappedGrenade.FVRFixedUpdate += FVRCappedGrenade_FVRFixedUpdate;
 
                 //For debugging, remove before build
-                On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
+                //On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
 			}
         }
 
