@@ -18,14 +18,21 @@ namespace AccessibilityOptions
 	[BepInProcess("h3vr.exe")]
 	public class AccessibilityOptionsBase : BaseUnityPlugin
 	{
+		//Wrist menu
 		public static ConfigEntry<bool> oneHandedWristMenuEnabled;
 		public static ConfigEntry<float> verticalPointerOffset;
 		public static ConfigEntry<Color> pointerColor;
 		public static ConfigEntry<float> pointerScale;
 
+		//Option panels
+		public static ConfigEntry<bool> lockPanelsAutomatically;
+		public static ConfigEntry<string> autoLockPanelWhitelist;
+
+		//Weapon pose locking
 		public static ConfigEntry<bool> weaponPoseLockingEnabled;
 		public static ConfigEntry<float> weaponPoseLockingTriggerDuration;
 
+		//Individual weapon tweaks
 		public static ConfigEntry<bool> oneHandedSAREnabled;
 
 		public static ConfigEntry<bool> oneHandedGrenadesEnabled;
@@ -60,6 +67,17 @@ namespace AccessibilityOptions
 									   0.01f,
 									   "How large (in meters) the pointer is");
 
+			//OPTION PANEL CONFIG
+			lockPanelsAutomatically = Config.Bind("Option Panels",
+												  "Automatically Lock Option Panels",
+												  true,
+												  "Enables/disables option panels locking automatically when spawned");
+
+			autoLockPanelWhitelist = Config.Bind("Option Panels",
+												 "(Advanced) Auto-Locking Panel Whitelist",
+												 "OptionsPanel_Screenmanager AmmoSpawnerV2",
+												 "Add a panel class name here (case-sensitive, separated by a space) to lock it automatically upon spawning");
+
 			//WEAPON POSE LOCKING CONFIG-------------------------------------------------------------------------------------
 			weaponPoseLockingEnabled = Config.Bind("Weapon Pose Locking",
 												   "Enable Weapon Pose Locking",
@@ -90,28 +108,38 @@ namespace AccessibilityOptions
 		}
 
 		OneHandedWristMenu oneHandedWristMenu;
+		AutoLockingPanels autoLockingPanels;
 		WeaponPoseLock weaponPoseLock;
 		OneHandedSingleActionRevolver oneHandedSingleActionRevolver;
 
 		void Awake()
         {
+			//Wrist menu
 			if (oneHandedWristMenuEnabled.Value)
 			{
 				oneHandedWristMenu = gameObject.AddComponent<OneHandedWristMenu>();
 				oneHandedWristMenu.Hook(verticalPointerOffset.Value, pointerColor.Value, pointerScale.Value, bundle);
 			}
 
+			//Option panels
+			if (lockPanelsAutomatically.Value)
+            {
+				autoLockingPanels = gameObject.AddComponent<AutoLockingPanels>();
+				autoLockingPanels.Hook(autoLockPanelWhitelist.Value);
+            }
+
+			//Weapon pose locking
 			if (weaponPoseLockingEnabled.Value)
             {
 				weaponPoseLock = gameObject.AddComponent<WeaponPoseLock>();
 				weaponPoseLock.Hook(weaponPoseLockingTriggerDuration.Value);
             }
 
+			//Individual weapon tweaks
 			if (oneHandedSAREnabled.Value)
 			{
 				oneHandedSingleActionRevolver = gameObject.AddComponent<OneHandedSingleActionRevolver>();
 			}
-
 			if (oneHandedGrenadesEnabled.Value)
             {
                 On.FistVR.PinnedGrenade.Awake += PinnedGrenade_Awake;
@@ -120,14 +148,14 @@ namespace AccessibilityOptions
 
                 On.FistVR.FVRCappedGrenade.Start += FVRCappedGrenade_Start;
                 On.FistVR.FVRCappedGrenade.FVRFixedUpdate += FVRCappedGrenade_FVRFixedUpdate;
-
-                //For debugging, remove before build
-                //On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
 			}
-        }
 
-        #region pinned grenades
-        private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
+			//For debugging, remove before build
+			//On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
+		}
+
+		#region pinned grenades
+		private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
 		{
 			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(pinnedGrenadePinPullDuration.Value);
 			orig(self);
