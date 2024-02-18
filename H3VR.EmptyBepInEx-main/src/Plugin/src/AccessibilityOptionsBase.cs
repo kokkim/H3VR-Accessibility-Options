@@ -32,6 +32,10 @@ namespace AccessibilityOptions
 		public static ConfigEntry<bool> weaponPoseLockingEnabled;
 		public static ConfigEntry<float> weaponPoseLockingTriggerDuration;
 
+		//Grip angle override
+		public static ConfigEntry<bool> gripAngleOverrideEnabled;
+		public static ConfigEntry<float> overrideGripAngle;
+
 		//Individual weapon tweaks
 		public static ConfigEntry<bool> oneHandedSAREnabled;
 
@@ -71,7 +75,7 @@ namespace AccessibilityOptions
 			lockPanelsAutomatically = Config.Bind("Option Panels",
 												  "Automatically Lock Option Panels",
 												  true,
-												  "Enables/disables option panels locking automatically when spawned");
+												  "Option panels lock automatically when spawned");
 
 			autoLockPanelWhitelist = Config.Bind("Option Panels",
 												 "(Advanced) Auto-Locking Panel Whitelist",
@@ -82,24 +86,35 @@ namespace AccessibilityOptions
 			weaponPoseLockingEnabled = Config.Bind("Weapon Pose Locking",
 												   "Enable Weapon Pose Locking",
 												   true,
-												   "Enables/disables locking weapons in mid-air by holding down the trigger on a safe or empty chamber");
+												   "Lock weapons in mid-air by holding down the trigger on a safe or empty chamber");
 
 			weaponPoseLockingTriggerDuration = Config.Bind("Weapon Pose Locking",
-														 "Pose Locking Trigger Hold Duration",
-														 0.5f,
-														 "How long the trigger needs to be held down for the weapon to get locked");
+														   "Pose Locking Trigger Hold Duration",
+														   0.5f,
+														   "How long the trigger needs to be held down for the weapon to get locked");
+
+			//GRIP ANGLE OVERRIDE CONFIG-------------------------------------------------------------------------------------
+			gripAngleOverrideEnabled = Config.Bind("Grip Angle Override",
+												   "Enable Grip Angle Override",
+												   true,
+												   "Override the angle weapons are held at, to make one-handed aiming easier");
+
+			overrideGripAngle = Config.Bind("Grip Angle Override",
+											"Override Grip Angle",
+											-75f,
+											"Determines the up/down angle of a weapon's hold pose");
 
 			//SINGLE-ACTION REVOLVER CONFIG-------------------------------------------------------------------------------------
 			oneHandedSAREnabled = Config.Bind("Single-Action Revolvers",
 											  "Enable One-Handed Single-Action Revolvers",
 											  true,
-											  "Enables/disables the cylinder automatically advancing upon inserting a round");
+											  "Automatically advance single-action revolver cylinders upon inserting a round");
 
 			//GRENADE CONFIG-------------------------------------------------------------------------------------
 			oneHandedGrenadesEnabled = Config.Bind("Grenades",
 												   "Enable One-Handed Grenades",
 												   true,
-												   "Enables/disables pulling pins by pressing the touchpad and AX face buttons");
+												   "Pull pins by holding the touchpad or AX face buttons");
 
 			pinnedGrenadePinPullDuration = Config.Bind("Grenades",
 												 "Pinned Grenade Pin Pull Duration",
@@ -110,6 +125,7 @@ namespace AccessibilityOptions
 		OneHandedWristMenu oneHandedWristMenu;
 		AutoLockingPanels autoLockingPanels;
 		WeaponPoseLock weaponPoseLock;
+		GripAngleOverride gripAngleOverride;
 		OneHandedSingleActionRevolver oneHandedSingleActionRevolver;
 
 		void Awake()
@@ -133,6 +149,13 @@ namespace AccessibilityOptions
             {
 				weaponPoseLock = gameObject.AddComponent<WeaponPoseLock>();
 				weaponPoseLock.Hook(weaponPoseLockingTriggerDuration.Value);
+            }
+
+			//Grip angle override
+			if (gripAngleOverrideEnabled.Value)
+            {
+				gripAngleOverride = gameObject.AddComponent<GripAngleOverride>();
+				gripAngleOverride.Hook(overrideGripAngle.Value);
             }
 
 			//Individual weapon tweaks
