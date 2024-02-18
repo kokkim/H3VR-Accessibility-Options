@@ -47,10 +47,16 @@ namespace AccessibilityOptions
         WeaponLockState lockState;
 
         public abstract bool CanFire();
+        /// <summary>
+        /// Returns true on one of two conditions:
+        /// 1. If the trigger is held, has the weapon's trigger reset?
+        /// 2. When the trigger is pulled, will the weapon's striker/firing pin get released?
+        /// </summary>
+        //when the trigger is pulled, will the weapon's striker/firing pin get released?
 
         public virtual bool IsBoltMoving()
         {
-            //returns true for weapons that cannot be fully automatic
+            //always returns false for single-fire weapons
             return false;
         }
 
