@@ -8,7 +8,6 @@ namespace AccessibilityOptions
     public class LockableSingleActionRevolver : LockableWeapon<SingleActionRevolver>
     {
         SingleActionRevolver SAR;
-        Handgun.FireSelectorModeType fireMode;
 
         protected override void Awake()
         {

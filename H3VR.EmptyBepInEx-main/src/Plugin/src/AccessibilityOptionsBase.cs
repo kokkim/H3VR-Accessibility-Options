@@ -9,9 +9,52 @@ using BepInEx.Configuration;
 namespace AccessibilityOptions
 {
 	/// <summary>
-	/// TODO:
-	/// - Unlock weapon upon detecting a gunshot
-	///		- Use the OnShotFired event
+	/// --------------------------------TODO------------------------------
+	/// - MISSING BASE METHOD CALLS:
+	/// Derringer.FVRUpdate()
+	/// 
+	/// GBeamer.FVRUpdate() (Method missing entirely, would have to use FVRFixedUpdate())
+	/// LeverActionFirearm.FVRUpdate() (ditto)
+	/// 
+	/// M72.FVRUpdate() & M72.FVRFixedUpdate() (both missing)
+	/// PotatoGun.FVRUpdate() & PotatoGun.FVRFixedUpdate() (ditto)
+	/// RPG7.FVRUpdate() & RPG7.FVRFixedUpdate() (ditto)
+	/// SimpleLauncher.FVRUpdate() & SimpleLauncher.FVRFixedUpdate() (ditto)
+	/// SingleActionRevolver.FVRFixedUpdate() (ditto)
+	/// 
+	/// FVRFireArms to convert:
+	/// 
+	/// HIGH PRIORITY
+	/// - LeverActionFirearm
+	/// - RollingBlock
+	/// - Derringer (Needs base method call in FVRUpdate)
+	/// - RevolvingShotgun
+	/// 
+	/// LOW PRIORITY
+	/// - Airgun
+	/// - SimpleLauncher (and Whizzbanger)
+	/// - CarlGustaf
+	/// - SimpleLauncher2
+	/// - M72
+	/// - RemoteMissileLauncher
+	/// - Minigun
+	/// - StingerLauncher
+	/// - RPG7
+	/// - Airgun
+	/// - GBeamer
+	/// - SRG
+	/// - FlameThrower
+	/// - sblp
+	/// - MeatNailer
+	/// - PotatoGun
+	/// - RailTater
+	/// - HCB
+	/// - Girandoni
+	/// - FlintlockWeapon
+	/// - GrappleGun
+	/// - LAPD2019
+	/// - MF2_RL
+	/// - RGM40
 	/// </summary>
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
@@ -54,7 +97,7 @@ namespace AccessibilityOptions
 			bundle = AssetBundle.LoadFromFile(Path.Combine(pluginPath, ASSET_BUNDLE_NAME));
 
 			//WRIST MENU CONFIG-------------------------------------------------------------------------------------
-			oneHandedWristMenuEnabled = Config.Bind("Wrist Menu",							//SO FAR UNUSED
+			oneHandedWristMenuEnabled = Config.Bind("Wrist Menu",
 													"Enable One-Handed Wrist Menu",
 													true,
 													"Enabled/disables one-handed wrist menu (requires game restart)");

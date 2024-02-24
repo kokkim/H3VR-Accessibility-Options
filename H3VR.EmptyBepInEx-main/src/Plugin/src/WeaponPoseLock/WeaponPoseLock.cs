@@ -44,8 +44,9 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(BAP)] = typeof(LockableBAP);
             LockableWeaponDict[typeof(Revolver)] = typeof(LockableRevolver);
             LockableWeaponDict[typeof(SingleActionRevolver)] = typeof(LockableSingleActionRevolver);
-            /*BROKEN FOR NOW*/LockableWeaponDict[typeof(Flaregun)] = typeof(LockableFlaregun);
-            /*!!WIP!!*/LockableWeaponDict[typeof(BreakActionWeapon)] = typeof(LockableBreakActionWeapon);
+            LockableWeaponDict[typeof(Flaregun)] = typeof(LockableFlaregun);
+            LockableWeaponDict[typeof(BreakActionWeapon)] = typeof(LockableBreakActionWeapon);
+            LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
