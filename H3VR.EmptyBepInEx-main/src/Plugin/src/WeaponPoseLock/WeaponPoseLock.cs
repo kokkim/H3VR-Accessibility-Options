@@ -15,13 +15,13 @@ namespace AccessibilityOptions
         public LockableWeapon currentlyLockedWeapon;
         public GameObject lockedWeaponProxy;
 
-        bool shotFiredSubscribed;
-
         public void Hook(float _triggerDuration)
         {
             instance = this;
 
             triggerDuration = _triggerDuration;
+
+            //-------------------------------------------------HOOKS
 
             On.FistVR.GM.InitScene += GM_InitScene;
 
@@ -32,6 +32,8 @@ namespace AccessibilityOptions
             On.FistVR.FVRQuickBeltSlot.MoveContentsInstant += FVRQuickBeltSlot_MoveContentsInstant;
             On.FistVR.FVRQuickBeltSlot.MoveContents += FVRQuickBeltSlot_MoveContents;
             On.FistVR.FVRQuickBeltSlot.MoveContentsCheap += FVRQuickBeltSlot_MoveContentsCheap;
+
+            //-------------------------------------------------DICTIONARY ENTRIES
 
             //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
 
@@ -46,7 +48,9 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(SingleActionRevolver)] = typeof(LockableSingleActionRevolver);
             LockableWeaponDict[typeof(Flaregun)] = typeof(LockableFlaregun);
             LockableWeaponDict[typeof(BreakActionWeapon)] = typeof(LockableBreakActionWeapon);
-            LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);
+            LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);  //broken until Anton fixes FVRUpdate()
+            LockableWeaponDict[typeof(RevolvingShotgun)] = typeof(LockableRevolvingShotgun);    //wip
+            LockableWeaponDict[typeof(RollingBlock)] = typeof(LockableRollingBlock);    //wip
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -57,11 +61,9 @@ namespace AccessibilityOptions
             lockedWeaponProxy = Instantiate(new GameObject(), GM.CurrentPlayerBody.gameObject.transform);
             lockedWeaponProxy.name = "lockedWeaponProxy";
 
-            if (!shotFiredSubscribed)
-            {
-                shotFiredSubscribed = true;
-                GM.CurrentSceneSettings.ShotFiredEvent += OnShotFired;
-            }
+
+            GM.CurrentSceneSettings.ShotFiredEvent -= OnShotFired;
+            GM.CurrentSceneSettings.ShotFiredEvent += OnShotFired;
         }
 
         private void FVRFireArm_Awake(On.FistVR.FVRFireArm.orig_Awake orig, FVRFireArm self)
@@ -124,7 +126,7 @@ namespace AccessibilityOptions
         //Unlocks weapon upon shooting 
         void OnShotFired(FVRFireArm _firearm)
         {
-            if (currentlyLockedWeapon != null) currentlyLockedWeapon.UnlockWeapon();
+            if (currentlyLockedWeapon != null && _firearm == currentlyLockedWeapon.thisFirearm) currentlyLockedWeapon.UnlockWeapon();
         }
 
         #region MoveContents
