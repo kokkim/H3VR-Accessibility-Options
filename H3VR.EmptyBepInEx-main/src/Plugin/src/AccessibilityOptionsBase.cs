@@ -36,6 +36,9 @@ namespace AccessibilityOptions
 		public static ConfigEntry<bool> gripAngleOverrideEnabled;
 		public static ConfigEntry<float> overrideGripAngle;
 
+		//Recoil override
+		public static ConfigEntry<bool> overrideRecoil;
+
 		//Individual weapon tweaks
 		public static ConfigEntry<bool> oneHandedSAREnabled;
 
@@ -92,6 +95,12 @@ namespace AccessibilityOptions
 														   "Pose Locking Trigger Hold Duration",
 														   0.5f,
 														   "How long the trigger needs to be held down for the weapon to get locked");
+
+			//RECOIL OVERRIDE CONFIG-------------------------------------------------------------------------------------
+			overrideRecoil = Config.Bind("Recoil Override",
+										 "Force Two-Handed Recoil",
+										 true,
+										 "Force weapons to always recoil like they're being two-handed");
 
 			//GRIP ANGLE OVERRIDE CONFIG-------------------------------------------------------------------------------------
 			gripAngleOverrideEnabled = Config.Bind("Grip Angle Override",
@@ -151,6 +160,12 @@ namespace AccessibilityOptions
 				weaponPoseLock.Hook(weaponPoseLockingTriggerDuration.Value);
             }
 
+			//Recoil override
+			if (overrideRecoil.Value)
+            {
+                On.FistVR.FVRFireArm.Recoil += FVRFireArm_Recoil;
+            }
+
 			//Grip angle override
 			if (gripAngleOverrideEnabled.Value)
             {
@@ -176,6 +191,13 @@ namespace AccessibilityOptions
 			//For debugging, remove before build
 			//On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
 		}
+
+		#region recoil override
+		private void FVRFireArm_Recoil(On.FistVR.FVRFireArm.orig_Recoil orig, FVRFireArm self, bool twoHandStabilized, bool foregripStabilized, bool shoulderStabilized, FVRFireArmRecoilProfile overrideprofile, float VerticalRecoilMult)
+		{
+			orig(self, true, true, shoulderStabilized, overrideprofile, VerticalRecoilMult);
+		}
+		#endregion
 
 		#region pinned grenades
 		private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
@@ -208,9 +230,10 @@ namespace AccessibilityOptions
 			}
 			orig(self);
 		}
-		#endregion
+        #endregion
 
-		private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
+        #region collision audio
+        private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
 		{
 			orig(self, col);
 			float impactMagnitude = col.relativeVelocity.magnitude;
@@ -228,5 +251,6 @@ namespace AccessibilityOptions
 				Debug.Log("Impact magnitude is " + impactMagnitude + ", medium impact");
 			}
 		}
-	}
+        #endregion
+    }
 }

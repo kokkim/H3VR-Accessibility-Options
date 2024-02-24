@@ -18,8 +18,8 @@ namespace AccessibilityOptions
 
         private void FVRFireArm_Awake(On.FistVR.FVRFireArm.orig_Awake orig, FVRFireArm self)
         {
-            self.PoseOverride.transform.localRotation = Quaternion.Euler(new Vector3(overrideGripAngle, 0f, 0f));
-            self.PoseOverride_Touch.transform.localRotation = Quaternion.Euler(new Vector3(overrideGripAngle, 0f, 0f));
+            if (self.PoseOverride != null) self.PoseOverride.transform.localRotation = Quaternion.Euler(new Vector3(overrideGripAngle, 0f, 0f));
+            if (self.PoseOverride_Touch != null) self.PoseOverride_Touch.transform.localRotation = Quaternion.Euler(new Vector3(overrideGripAngle, 0f, 0f));
             orig(self);
         }
     }
