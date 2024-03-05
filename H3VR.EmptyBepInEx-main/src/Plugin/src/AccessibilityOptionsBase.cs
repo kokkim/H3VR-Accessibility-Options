@@ -25,12 +25,12 @@ namespace AccessibilityOptions
 	/// FVRFireArms to convert:
 	/// 
 	/// HIGH PRIORITY
+	/// - (Faster operating speed for) TubeFedShotgun
 	/// - LeverActionFirearm
-	/// - RollingBlock
 	/// - Derringer (Needs base method call in FVRUpdate)
-	/// - RevolvingShotgun
 	/// 
 	/// LOW PRIORITY
+	/// - SosigWeapon
 	/// - Airgun
 	/// - SimpleLauncher (and Whizzbanger)
 	/// - CarlGustaf
@@ -232,7 +232,6 @@ namespace AccessibilityOptions
 			}
 
 			//For debugging, remove before build
-			//On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
 		}
 
 		#region recoil override
@@ -272,27 +271,6 @@ namespace AccessibilityOptions
 				self.GetComponent<OneHandedCappedGrenade>().FVRFixedUpdate_Hooked(self);
 			}
 			orig(self);
-		}
-        #endregion
-
-        #region collision audio
-        private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
-		{
-			orig(self, col);
-			float impactMagnitude = col.relativeVelocity.magnitude;
-
-			if (impactMagnitude < self.HitThreshold_Ignore)
-            {
-				Debug.Log("Impact magnitude is " + impactMagnitude + ", ignoring collision");
-            }
-			else if (impactMagnitude > self.HitThreshold_High)
-            {
-				Debug.Log("Impact magnitude is " + impactMagnitude + ", high impact");
-			}
-			else if (impactMagnitude > self.HitThreshold_Medium)
-			{
-				Debug.Log("Impact magnitude is " + impactMagnitude + ", medium impact");
-			}
 		}
         #endregion
     }

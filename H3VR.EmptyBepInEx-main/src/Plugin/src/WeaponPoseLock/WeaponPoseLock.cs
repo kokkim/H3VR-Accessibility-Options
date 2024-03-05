@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity;
 using FistVR;
 
 namespace AccessibilityOptions
@@ -33,6 +34,7 @@ namespace AccessibilityOptions
             On.FistVR.FVRQuickBeltSlot.MoveContents += FVRQuickBeltSlot_MoveContents;
             On.FistVR.FVRQuickBeltSlot.MoveContentsCheap += FVRQuickBeltSlot_MoveContentsCheap;
 
+            On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
             //-------------------------------------------------DICTIONARY ENTRIES
 
             //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
@@ -49,8 +51,9 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(Flaregun)] = typeof(LockableFlaregun);
             LockableWeaponDict[typeof(BreakActionWeapon)] = typeof(LockableBreakActionWeapon);
             LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);  //broken until Anton fixes FVRUpdate()
-            LockableWeaponDict[typeof(RevolvingShotgun)] = typeof(LockableRevolvingShotgun);    //wip
-            LockableWeaponDict[typeof(RollingBlock)] = typeof(LockableRollingBlock);    //wip
+            LockableWeaponDict[typeof(RevolvingShotgun)] = typeof(LockableRevolvingShotgun);
+            LockableWeaponDict[typeof(RollingBlock)] = typeof(LockableRollingBlock);
+            LockableWeaponDict[typeof(LeverActionFirearm)] = typeof(LockableLeverActionFirearm); //WIP, may need a cop-out solution
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -61,17 +64,12 @@ namespace AccessibilityOptions
             lockedWeaponProxy = Instantiate(new GameObject(), GM.CurrentPlayerBody.gameObject.transform);
             lockedWeaponProxy.name = "lockedWeaponProxy";
 
-
             GM.CurrentSceneSettings.ShotFiredEvent -= OnShotFired;
             GM.CurrentSceneSettings.ShotFiredEvent += OnShotFired;
         }
 
         private void FVRFireArm_Awake(On.FistVR.FVRFireArm.orig_Awake orig, FVRFireArm self)
         {
-            ///New implementation:
-            ///Create a dictionary with weapon types as keys and their pose lock patches as values
-            ///When a weapon spawns, it looks for a key matching its type, and adds the component to it
-
             orig(self);
 
             LockableWeaponDict.TryGetValue(self.GetType(), out Type temp);
@@ -160,6 +158,18 @@ namespace AccessibilityOptions
                 }
             }
             return false;
+        }
+        #endregion
+
+        #region collision audio
+        //Without the override, ammo would constantly make loud impact sounds when even hovering near the locked object
+        private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
+        {
+            if (currentlyLockedWeapon != null)
+            {
+                if (self.transform.root.gameObject == currentlyLockedWeapon.gameObject || col.transform.root.gameObject == currentlyLockedWeapon.gameObject) return;
+            }
+            orig(self, col);
         }
         #endregion
     }

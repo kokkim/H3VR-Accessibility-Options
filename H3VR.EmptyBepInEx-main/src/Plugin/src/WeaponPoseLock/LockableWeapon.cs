@@ -143,8 +143,10 @@ namespace AccessibilityOptions
             }
         }
 
-        void LockWeapon()
+        public virtual void LockWeapon()
         {
+            thisFirearm.m_hand.Buzz(thisFirearm.m_hand.Buzzer.Buzz_BeginInteraction);
+
             WeaponPoseLock.instance.currentlyLockedWeapon = this;
 
             thisFirearm.IsPivotLocked = true;       //Unnecessary?
@@ -155,7 +157,7 @@ namespace AccessibilityOptions
             WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
         }
 
-        public void UnlockWeapon()
+        public virtual void UnlockWeapon()
         {
             isValidForPoseLock = false;
             WeaponPoseLock.instance.currentlyLockedWeapon = null;
