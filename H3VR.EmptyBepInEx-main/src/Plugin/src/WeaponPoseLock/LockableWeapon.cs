@@ -149,9 +149,10 @@ namespace AccessibilityOptions
 
             WeaponPoseLock.instance.currentlyLockedWeapon = this;
 
-            thisFirearm.IsPivotLocked = true;       //Unnecessary?
             thisFirearm.IsKinematicLocked = true;
             thisFirearm.RootRigidbody.isKinematic = true;
+            WeaponPoseLock.instance.lockedWeaponSize = thisFirearm.Size;
+            thisFirearm.Size = FVRPhysicalObject.FVRPhysicalObjectSize.CantCarryBig;
 
             WeaponPoseLock.instance.lockedWeaponProxy.transform.position = thisFirearm.transform.position;
             WeaponPoseLock.instance.lockedWeaponProxy.transform.rotation = thisFirearm.transform.rotation;
@@ -163,9 +164,9 @@ namespace AccessibilityOptions
             WeaponPoseLock.instance.currentlyLockedWeapon = null;
             lockState = WeaponLockState.Unlocked;
 
-            thisFirearm.IsPivotLocked = false;      //Unnecessary?
             thisFirearm.IsKinematicLocked = false;
             thisFirearm.RootRigidbody.isKinematic = false;
+            thisFirearm.Size = WeaponPoseLock.instance.lockedWeaponSize;
             //Debug.Log("Locked -> Unlocked");
         }
     }

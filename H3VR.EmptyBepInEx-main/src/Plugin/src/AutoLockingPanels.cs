@@ -9,12 +9,12 @@ namespace AccessibilityOptions
     {
         string[] panelWhitelist = new string[0];
 
-        public void Hook(string _panelWhitelist)
+        public void Awake()
         {
             On.FistVR.FVRPhysicalObject.Awake += FVRPhysicalObject_Awake;
 
             //chops up the long string of panel class names and assigns them to an array
-            panelWhitelist = _panelWhitelist.Split(' ');
+            panelWhitelist = AccessibilityOptionsBase.autoLockPanelWhitelist.Value.Split(' ');
             for (int i = 0; i < panelWhitelist.Length; i++)
             {
                 panelWhitelist[i].Trim();

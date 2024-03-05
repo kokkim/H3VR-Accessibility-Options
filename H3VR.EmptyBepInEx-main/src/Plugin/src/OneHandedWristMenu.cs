@@ -21,16 +21,16 @@ namespace AccessibilityOptions
 
         private FVRPointableButton curPointable;
 
-        public void Hook(float _verticalPointerOffset, Color _pointerColor, float _pointerScale, AssetBundle _bundle)
+        void Awake()
         {
             On.FistVR.FVRWristMenu2.ActivateOnHand += FVRWristMenu2_ActivateOnHand;
             On.FistVR.FVRWristMenu2.Deactivate += FVRWristMenu2_Deactivate;
 
-            verticalPointerOffset = _verticalPointerOffset;
-            pointerColor = _pointerColor;
-            pointerScale = _pointerScale;
+            verticalPointerOffset = AccessibilityOptionsBase.verticalPointerOffset.Value;
+            pointerColor = AccessibilityOptionsBase.pointerColor.Value;
+            pointerScale = AccessibilityOptionsBase.pointerScale.Value;
 
-            pointerPrefab = _bundle.LoadAsset<GameObject>("WristMenuPointer");
+            pointerPrefab = AccessibilityOptionsBase.pointerAssetBundle.LoadAsset<GameObject>("WristMenuPointer");
             pointerMat = pointerPrefab.GetComponent<MeshRenderer>().material;
 
             pointerCoroutine = PointWithHead();

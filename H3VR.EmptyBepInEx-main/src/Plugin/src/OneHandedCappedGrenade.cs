@@ -11,7 +11,7 @@ namespace AccessibilityOptions
 		FVRCappedGrenadeCap primaryCap, secondaryCap;
 		AudioSource? uncapAudioSource;
 
-		public void Hook()
+		void Awake()
         {
 			FVRCappedGrenadeCap[] caps = GetComponentsInChildren<FVRCappedGrenadeCap>();
 

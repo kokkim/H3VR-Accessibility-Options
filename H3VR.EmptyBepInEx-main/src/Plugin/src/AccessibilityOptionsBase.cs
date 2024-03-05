@@ -82,19 +82,23 @@ namespace AccessibilityOptions
 		//Recoil override
 		public static ConfigEntry<bool> overrideRecoil;
 
-		//Individual weapon tweaks
-		public static ConfigEntry<bool> oneHandedSAREnabled;
+		//Miscellaneous weapon tweaks
+		public static ConfigEntry<bool> miscWeaponTweaksEnabled;
 
+		public static ConfigEntry<bool> oneHandedSAREnabled;
 		public static ConfigEntry<bool> oneHandedGrenadesEnabled;
+
 		public static ConfigEntry<float> pinnedGrenadePinPullDuration;
 
-		private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
-		AssetBundle bundle;
+		public static ConfigEntry<bool> oneHandedPumpReleaseEnabled;
 
-		public AccessibilityOptionsBase()
+		private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
+		public static AssetBundle pointerAssetBundle;
+
+        public AccessibilityOptionsBase()
 		{
 			string pluginPath = Path.GetDirectoryName(Info.Location);
-			bundle = AssetBundle.LoadFromFile(Path.Combine(pluginPath, ASSET_BUNDLE_NAME));
+			pointerAssetBundle = AssetBundle.LoadFromFile(Path.Combine(pluginPath, ASSET_BUNDLE_NAME));
 
 			//WRIST MENU CONFIG-------------------------------------------------------------------------------------
 			oneHandedWristMenuEnabled = Config.Bind("Wrist Menu",
@@ -156,29 +160,38 @@ namespace AccessibilityOptions
 											-75f,
 											"Determines the up/down angle of a weapon's hold pose");
 
-			//SINGLE-ACTION REVOLVER CONFIG-------------------------------------------------------------------------------------
-			oneHandedSAREnabled = Config.Bind("Single-Action Revolvers",
+			//MISCELLANEOUS WEAPON TWEAK CONFIG-------------------------------------------------------------------------------------
+			miscWeaponTweaksEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
+												  "Enable miscellaneous one-handed weapon tweaks",
+												  true,
+												  "Toggle all miscellaneous weapon tweaks on or off");
+
+			oneHandedSAREnabled = Config.Bind("Miscellaneous Weapon Tweaks",
 											  "Enable One-Handed Single-Action Revolvers",
 											  true,
 											  "Automatically advance single-action revolver cylinders upon inserting a round");
 
-			//GRENADE CONFIG-------------------------------------------------------------------------------------
-			oneHandedGrenadesEnabled = Config.Bind("Grenades",
+			oneHandedGrenadesEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
 												   "Enable One-Handed Grenades",
 												   true,
 												   "Pull pins by holding the touchpad or AX face buttons");
 
-			pinnedGrenadePinPullDuration = Config.Bind("Grenades",
+			pinnedGrenadePinPullDuration = Config.Bind("Miscellaneous Weapon Tweaks",
 												 "Pinned Grenade Pin Pull Duration",
 												 0.5f,
 												 "How long (in seconds) the button needs to be held down to pull out a grenade pin (set to 0 for instant)");
+
+			oneHandedPumpReleaseEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
+													  "Enable one-handed pump release",
+													  true,
+													  "Unlock pump-action weapon pumps by pulling the trigger while holding the pump");
 		}
 
 		OneHandedWristMenu oneHandedWristMenu;
 		AutoLockingPanels autoLockingPanels;
 		WeaponPoseLock weaponPoseLock;
 		GripAngleOverride gripAngleOverride;
-		OneHandedSingleActionRevolver oneHandedSingleActionRevolver;
+		OneHandedMiscWeaponTweaks oneHandedMiscWeaponTweaks;
 
 		void Awake()
         {
@@ -186,21 +199,18 @@ namespace AccessibilityOptions
 			if (oneHandedWristMenuEnabled.Value)
 			{
 				oneHandedWristMenu = gameObject.AddComponent<OneHandedWristMenu>();
-				oneHandedWristMenu.Hook(verticalPointerOffset.Value, pointerColor.Value, pointerScale.Value, bundle);
 			}
 
 			//Option panels
 			if (lockPanelsAutomatically.Value)
             {
 				autoLockingPanels = gameObject.AddComponent<AutoLockingPanels>();
-				autoLockingPanels.Hook(autoLockPanelWhitelist.Value);
             }
 
 			//Weapon pose locking
 			if (weaponPoseLockingEnabled.Value)
             {
 				weaponPoseLock = gameObject.AddComponent<WeaponPoseLock>();
-				weaponPoseLock.Hook(weaponPoseLockingTriggerDuration.Value);
             }
 
 			//Recoil override
@@ -213,25 +223,13 @@ namespace AccessibilityOptions
 			if (gripAngleOverrideEnabled.Value)
             {
 				gripAngleOverride = gameObject.AddComponent<GripAngleOverride>();
-				gripAngleOverride.Hook(overrideGripAngle.Value);
             }
 
-			//Individual weapon tweaks
-			if (oneHandedSAREnabled.Value)
+			//Miscellaneous weapon tweaks
+			if (miscWeaponTweaksEnabled.Value)
 			{
-				oneHandedSingleActionRevolver = gameObject.AddComponent<OneHandedSingleActionRevolver>();
+				oneHandedMiscWeaponTweaks = gameObject.AddComponent<OneHandedMiscWeaponTweaks>();
 			}
-			if (oneHandedGrenadesEnabled.Value)
-            {
-                On.FistVR.PinnedGrenade.Awake += PinnedGrenade_Awake;
-                On.FistVR.PinnedGrenade.UpdateInteraction += PinnedGrenade_UpdateInteraction;
-                On.FistVR.PinnedGrenade.IncreaseFuseSetting += PinnedGrenade_IncreaseFuseSetting;
-
-                On.FistVR.FVRCappedGrenade.Start += FVRCappedGrenade_Start;
-                On.FistVR.FVRCappedGrenade.FVRFixedUpdate += FVRCappedGrenade_FVRFixedUpdate;
-			}
-
-			//For debugging, remove before build
 		}
 
 		#region recoil override
@@ -240,38 +238,5 @@ namespace AccessibilityOptions
 			orig(self, true, true, shoulderStabilized, overrideprofile, VerticalRecoilMult);
 		}
 		#endregion
-
-		#region pinned grenades
-		private void PinnedGrenade_Awake(On.FistVR.PinnedGrenade.orig_Awake orig, PinnedGrenade self)
-		{
-			self.gameObject.AddComponent<OneHandedPinnedGrenade>().Hook(pinnedGrenadePinPullDuration.Value);
-			orig(self);
-		}
-		private void PinnedGrenade_UpdateInteraction(On.FistVR.PinnedGrenade.orig_UpdateInteraction orig, PinnedGrenade self, FVRViveHand hand)
-		{
-			self.GetComponent<OneHandedPinnedGrenade>().UpdateInteraction_Hooked(self, hand);
-			orig(self, hand);
-		}
-		private void PinnedGrenade_IncreaseFuseSetting(On.FistVR.PinnedGrenade.orig_IncreaseFuseSetting orig, PinnedGrenade self)
-		{
-			//this is left deliberately empty to completely overwrite the original input method for it
-		}
-        #endregion
-
-        #region capped grenades
-        private void FVRCappedGrenade_Start(On.FistVR.FVRCappedGrenade.orig_Start orig, FVRCappedGrenade self)
-		{
-			orig(self);
-			self.gameObject.AddComponent<OneHandedCappedGrenade>().Hook();
-		}
-		private void FVRCappedGrenade_FVRFixedUpdate(On.FistVR.FVRCappedGrenade.orig_FVRFixedUpdate orig, FVRCappedGrenade self)
-		{
-			if (self.IsHeld && !self.m_IsFuseActive)
-            {
-				self.GetComponent<OneHandedCappedGrenade>().FVRFixedUpdate_Hooked(self);
-			}
-			orig(self);
-		}
-        #endregion
     }
 }

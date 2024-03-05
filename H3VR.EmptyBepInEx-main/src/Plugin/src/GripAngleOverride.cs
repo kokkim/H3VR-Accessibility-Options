@@ -9,9 +9,9 @@ namespace AccessibilityOptions
     {
         float overrideGripAngle;
 
-        public void Hook(float _overrideGripAngle)
+        void Awake()
         {
-            overrideGripAngle = _overrideGripAngle;
+            overrideGripAngle = AccessibilityOptionsBase.overrideGripAngle.Value;
 
             On.FistVR.FVRFireArm.Awake += FVRFireArm_Awake;
         }

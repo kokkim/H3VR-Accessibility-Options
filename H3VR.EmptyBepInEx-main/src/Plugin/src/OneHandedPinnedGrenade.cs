@@ -16,9 +16,9 @@ namespace AccessibilityOptions
 
         bool hasPinPullReset = true;
 
-        public void Hook(float _pinPullDuration)
+        void Awake()
         {
-            pinPullDuration = _pinPullDuration;
+            pinPullDuration = AccessibilityOptionsBase.pinnedGrenadePinPullDuration.Value;
         }
 
         public void UpdateInteraction_Hooked(PinnedGrenade self, FVRViveHand hand)

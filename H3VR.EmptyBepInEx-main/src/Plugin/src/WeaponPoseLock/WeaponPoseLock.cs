@@ -14,13 +14,15 @@ namespace AccessibilityOptions
 
         public float triggerDuration;
         public LockableWeapon currentlyLockedWeapon;
+        public FVRPhysicalObject.FVRPhysicalObjectSize lockedWeaponSize;
+
         public GameObject lockedWeaponProxy;
 
-        public void Hook(float _triggerDuration)
+        void Awake()
         {
             instance = this;
 
-            triggerDuration = _triggerDuration;
+            triggerDuration = AccessibilityOptionsBase.weaponPoseLockingTriggerDuration.Value;
 
             //-------------------------------------------------HOOKS
 
@@ -34,7 +36,6 @@ namespace AccessibilityOptions
             On.FistVR.FVRQuickBeltSlot.MoveContents += FVRQuickBeltSlot_MoveContents;
             On.FistVR.FVRQuickBeltSlot.MoveContentsCheap += FVRQuickBeltSlot_MoveContentsCheap;
 
-            On.FistVR.AudioImpactController.ProcessCollision += AudioImpactController_ProcessCollision;
             //-------------------------------------------------DICTIONARY ENTRIES
 
             //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
@@ -158,18 +159,6 @@ namespace AccessibilityOptions
                 }
             }
             return false;
-        }
-        #endregion
-
-        #region collision audio
-        //Without the override, ammo would constantly make loud impact sounds when even hovering near the locked object
-        private void AudioImpactController_ProcessCollision(On.FistVR.AudioImpactController.orig_ProcessCollision orig, AudioImpactController self, Collision col)
-        {
-            if (currentlyLockedWeapon != null)
-            {
-                if (self.transform.root.gameObject == currentlyLockedWeapon.gameObject || col.transform.root.gameObject == currentlyLockedWeapon.gameObject) return;
-            }
-            orig(self, col);
         }
         #endregion
     }
