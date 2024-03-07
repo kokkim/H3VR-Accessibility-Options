@@ -93,16 +93,20 @@ namespace AccessibilityOptions
         #region pump-actions
         private void TubeFedShotgunHandle_UpdateHandle(On.FistVR.TubeFedShotgunHandle.orig_UpdateHandle orig, TubeFedShotgunHandle self)
         {
-            //TODO: Fix this shit
-            if (self.Shotgun.IsAltHeld)
+            //still can't detect that a hand is holding a foregrip
+            //Check if the weapon's IsHeld isn't active?
+            if (WeaponPoseLock.instance.currentlyLockedWeapon != null)
             {
-                foreach (FVRViveHand hand in GM.CurrentMovementManager.Hands)
+                if (self.Shotgun.IsAltHeld && WeaponPoseLock.instance.currentlyLockedWeapon.thisFirearm == self.Shotgun)
                 {
-                    if (hand.CurrentInteractable == WeaponPoseLock.instance.currentlyLockedWeapon)
+                    foreach (FVRViveHand hand in GM.CurrentMovementManager.Hands)
                     {
-                        if (hand.Input.TriggerFloat >= 0.6f)
+                        if (hand.CurrentInteractable == self.Shotgun && hand.OtherHand.CurrentInteractable != self.Shotgun)
                         {
-                            self.UnlockHandle();
+                            if (hand.Input.TriggerFloat >= 0.6f)
+                            {
+                                self.UnlockHandle();
+                            }
                             break;
                         }
                     }
