@@ -79,15 +79,17 @@ namespace AccessibilityOptions
 		public static ConfigEntry<bool> gripAngleOverrideEnabled;
 		public static ConfigEntry<float> overrideGripAngle;
 
-		//Recoil override
+		//Quality of life
 		public static ConfigEntry<bool> overrideRecoil;
+
+		public static ConfigEntry<bool> oneHandedHoverBench;
 
 		//Miscellaneous weapon tweaks
 		public static ConfigEntry<bool> miscWeaponTweaksEnabled;
 
 		public static ConfigEntry<bool> oneHandedSAREnabled;
-		public static ConfigEntry<bool> oneHandedGrenadesEnabled;
 
+		public static ConfigEntry<bool> oneHandedGrenadesEnabled;
 		public static ConfigEntry<float> pinnedGrenadePinPullDuration;
 
 		public static ConfigEntry<bool> oneHandedPumpReleaseEnabled;
@@ -143,12 +145,6 @@ namespace AccessibilityOptions
 														   0.5f,
 														   "How long the trigger needs to be held down for the weapon to get locked");
 
-			//RECOIL OVERRIDE CONFIG-------------------------------------------------------------------------------------
-			overrideRecoil = Config.Bind("Recoil Override",
-										 "Force Two-Handed Recoil",
-										 true,
-										 "Force weapons to always recoil like they're being two-handed");
-
 			//GRIP ANGLE OVERRIDE CONFIG-------------------------------------------------------------------------------------
 			gripAngleOverrideEnabled = Config.Bind("Grip Angle Override",
 												   "Enable Grip Angle Override",
@@ -159,6 +155,17 @@ namespace AccessibilityOptions
 											"Override Grip Angle",
 											-75f,
 											"Determines the up/down angle of a weapon's hold pose");
+
+			//QUALITY OF LIFE CONFIG-------------------------------------------------------------------------------------
+			overrideRecoil = Config.Bind("Quality Of Life",
+										 "Force Two-Handed Recoil",
+										 true,
+										 "Force weapons to always recoil like they're being two-handed");
+
+			oneHandedHoverBench = Config.Bind("Quality Of Life",
+											  "Enable One-Handed Hoverbench",
+											  true,
+											  "Allow locking items into the Hoverbench without requiring two hands");
 
 			//MISCELLANEOUS WEAPON TWEAK CONFIG-------------------------------------------------------------------------------------
 			miscWeaponTweaksEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
@@ -213,16 +220,21 @@ namespace AccessibilityOptions
 				weaponPoseLock = gameObject.AddComponent<WeaponPoseLock>();
             }
 
-			//Recoil override
-			if (overrideRecoil.Value)
-            {
-                On.FistVR.FVRFireArm.Recoil += FVRFireArm_Recoil;
-            }
-
 			//Grip angle override
 			if (gripAngleOverrideEnabled.Value)
             {
 				gripAngleOverride = gameObject.AddComponent<GripAngleOverride>();
+            }
+
+			//Quality of life
+			if (overrideRecoil.Value)
+			{
+				On.FistVR.FVRFireArm.Recoil += FVRFireArm_Recoil;
+			}
+
+			if (oneHandedHoverBench.Value)
+            {
+                On.FistVR.FVRPivotLocker.TryToLockObject += FVRPivotLocker_TryToLockObject;
             }
 
 			//Miscellaneous weapon tweaks
@@ -232,11 +244,31 @@ namespace AccessibilityOptions
 			}
 		}
 
-		#region recoil override
-		private void FVRFireArm_Recoil(On.FistVR.FVRFireArm.orig_Recoil orig, FVRFireArm self, bool twoHandStabilized, bool foregripStabilized, bool shoulderStabilized, FVRFireArmRecoilProfile overrideprofile, float VerticalRecoilMult)
+        #region recoil override
+        private void FVRFireArm_Recoil(On.FistVR.FVRFireArm.orig_Recoil orig, FVRFireArm self, bool twoHandStabilized, bool foregripStabilized, bool shoulderStabilized, FVRFireArmRecoilProfile overrideprofile, float VerticalRecoilMult)
 		{
 			orig(self, true, true, shoulderStabilized, overrideprofile, VerticalRecoilMult);
 		}
 		#endregion
-    }
+
+		#region one-handed hoverbench
+		private void FVRPivotLocker_TryToLockObject(On.FistVR.FVRPivotLocker.orig_TryToLockObject orig, FVRPivotLocker self)
+		{
+			orig(self);
+			if (self.m_obj != null) return;
+
+			Collider[] overlappingObjs = Physics.OverlapBox(self.TestingBox.position, self.TestingBox.localScale / 1.9f, self.TestingBox.rotation);
+			for (int i = 0; i < overlappingObjs.Length; i++)
+			{
+				FVRPhysicalObject objectToLock = overlappingObjs[i].GetComponent<FVRPhysicalObject>();
+				if (objectToLock != null)
+				{
+					if (weaponPoseLock.currentlyLockedWeapon != null && weaponPoseLock.currentlyLockedWeapon.thisFirearm == objectToLock) weaponPoseLock.currentlyLockedWeapon.UnlockWeapon();
+					self.LockObject(objectToLock);
+					return;
+				}
+			}
+		}
+		#endregion
+	}
 }
