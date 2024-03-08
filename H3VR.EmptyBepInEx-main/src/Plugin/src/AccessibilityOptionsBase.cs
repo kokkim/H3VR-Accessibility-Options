@@ -26,7 +26,7 @@ namespace AccessibilityOptions
 	/// 
 	/// HIGH PRIORITY
 	/// - (Faster operating speed for) TubeFedShotgun
-	/// - LeverActionFirearm
+	/// - (Less clunky operation for) LeverActionFirearm
 	/// - Derringer (Needs base method call in FVRUpdate)
 	/// 
 	/// LOW PRIORITY
@@ -142,7 +142,7 @@ namespace AccessibilityOptions
 
 			weaponPoseLockingTriggerDuration = Config.Bind("Weapon Pose Locking",
 														   "Pose Locking Trigger Hold Duration",
-														   0.5f,
+														   0.35f,
 														   "How long the trigger needs to be held down for the weapon to get locked");
 
 			//GRIP ANGLE OVERRIDE CONFIG-------------------------------------------------------------------------------------
