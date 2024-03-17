@@ -30,7 +30,7 @@ namespace AccessibilityOptions
 	/// - Derringer (Needs base method call in FVRUpdate)
 	/// 
 	/// LOW PRIORITY
-	/// - SosigWeapon
+	/// - SosigWeaponPlayerInterface
 	/// - Airgun
 	/// - SimpleLauncher (and Whizzbanger)
 	/// - CarlGustaf
@@ -55,14 +55,18 @@ namespace AccessibilityOptions
 	/// - LAPD2019
 	/// - MF2_RL
 	/// - RGM40
+	/// - SRG 
 	/// </summary>
+
+
 
 	[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
 	[BepInProcess("h3vr.exe")]
 	public class AccessibilityOptionsBase : BaseUnityPlugin
 	{
-		//Wrist menu
-		public static ConfigEntry<bool> oneHandedWristMenuEnabled;
+        #region config entries
+        //Wrist menu
+        public static ConfigEntry<bool> oneHandedWristMenuEnabled;
 		public static ConfigEntry<float> verticalPointerOffset;
 		public static ConfigEntry<Color> pointerColor;
 		public static ConfigEntry<float> pointerScale;
@@ -93,8 +97,9 @@ namespace AccessibilityOptions
 		public static ConfigEntry<float> pinnedGrenadePinPullDuration;
 
 		public static ConfigEntry<bool> oneHandedPumpReleaseEnabled;
+        #endregion
 
-		private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
+        private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
 		public static AssetBundle pointerAssetBundle;
 
         public AccessibilityOptionsBase()
@@ -123,17 +128,6 @@ namespace AccessibilityOptions
 									   0.01f,
 									   "How large (in meters) the pointer is");
 
-			//OPTION PANEL CONFIG
-			lockPanelsAutomatically = Config.Bind("Option Panels",
-												  "Automatically Lock Option Panels",
-												  true,
-												  "Option panels lock automatically when spawned");
-
-			autoLockPanelWhitelist = Config.Bind("Option Panels",
-												 "(Advanced) Auto-Locking Panel Whitelist",
-												 "OptionsPanel_Screenmanager AmmoSpawnerV2",
-												 "Add a panel class name here (case-sensitive, separated by a space) to lock it automatically upon spawning");
-
 			//WEAPON POSE LOCKING CONFIG-------------------------------------------------------------------------------------
 			weaponPoseLockingEnabled = Config.Bind("Weapon Pose Locking",
 												   "Enable Weapon Pose Locking",
@@ -145,16 +139,6 @@ namespace AccessibilityOptions
 														   0.35f,
 														   "How long the trigger needs to be held down for the weapon to get locked");
 
-			//GRIP ANGLE OVERRIDE CONFIG-------------------------------------------------------------------------------------
-			gripAngleOverrideEnabled = Config.Bind("Grip Angle Override",
-												   "Enable Grip Angle Override",
-												   true,
-												   "Override the angle weapons are held at, to make one-handed aiming easier");
-
-			overrideGripAngle = Config.Bind("Grip Angle Override",
-											"Override Grip Angle",
-											-75f,
-											"Determines the up/down angle of a weapon's hold pose");
 
 			//QUALITY OF LIFE CONFIG-------------------------------------------------------------------------------------
 			overrideRecoil = Config.Bind("Quality Of Life",
@@ -162,14 +146,35 @@ namespace AccessibilityOptions
 										 true,
 										 "Force weapons to always recoil like they're being two-handed");
 
-			oneHandedHoverBench = Config.Bind("Quality Of Life",
-											  "Enable One-Handed Hoverbench",
-											  true,
-											  "Allow locking items into the Hoverbench without requiring two hands");
+            oneHandedHoverBench = Config.Bind("Quality Of Life",
+                                              "Enable One-Handed Hoverbench",
+                                              true,
+                                              "Allow locking items into the Hoverbench without requiring two hands");
+
+			gripAngleOverrideEnabled = Config.Bind("Quality Of Life",
+												   "Enable Grip Angle Override",
+												   true,
+												   "Override the angle weapons are held at, to make one-handed aiming easier");
+
+			overrideGripAngle = Config.Bind("Quality Of Life",
+											"Override Grip Angle",
+											-75f,
+											"Determines the up/down angle of a weapon's hold pose");
+
+			//OPTION PANEL CONFIG
+			lockPanelsAutomatically = Config.Bind("Quality Of Life",
+												  "Automatically Lock Option Panels",
+												  true,
+												  "Option panels lock automatically when spawned");
+
+			autoLockPanelWhitelist = Config.Bind("Quality Of Life",
+												 "(Advanced) Auto-Locking Panel Whitelist",
+												 "OptionsPanel_Screenmanager AmmoSpawnerV2",
+												 "Add a panel class name here (case-sensitive, separated by a space) to lock it automatically upon spawning");
 
 			//MISCELLANEOUS WEAPON TWEAK CONFIG-------------------------------------------------------------------------------------
 			miscWeaponTweaksEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
-												  "Enable miscellaneous one-handed weapon tweaks",
+												  "Enable Miscellaneous One-Handed Weapon Tweaks",
 												  true,
 												  "Toggle all miscellaneous weapon tweaks on or off");
 
@@ -189,7 +194,7 @@ namespace AccessibilityOptions
 												 "How long (in seconds) the button needs to be held down to pull out a grenade pin (set to 0 for instant)");
 
 			oneHandedPumpReleaseEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
-													  "Enable one-handed pump release",
+													  "Enable One-Handed Pump Release",
 													  true,
 													  "Unlock pump-action weapon pumps by pulling the trigger while holding the pump");
 		}

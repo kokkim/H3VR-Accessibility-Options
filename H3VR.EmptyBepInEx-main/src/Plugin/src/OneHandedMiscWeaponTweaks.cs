@@ -6,8 +6,6 @@ namespace AccessibilityOptions
 {
     class OneHandedMiscWeaponTweaks : MonoBehaviour
     {
-        float pinnedGrenadePinPullDuration;
-
         void Awake()
         {
             if (AccessibilityOptionsBase.oneHandedSAREnabled.Value)
@@ -17,10 +15,9 @@ namespace AccessibilityOptions
 
             if (AccessibilityOptionsBase.oneHandedGrenadesEnabled.Value)
             {
-                pinnedGrenadePinPullDuration = AccessibilityOptionsBase.pinnedGrenadePinPullDuration.Value;
-
                 On.FistVR.PinnedGrenade.Awake += PinnedGrenade_Awake;
                 On.FistVR.PinnedGrenade.UpdateInteraction += PinnedGrenade_UpdateInteraction;
+                On.FistVR.PinnedGrenade.ReleaseLever += PinnedGrenade_ReleaseLever;
                 On.FistVR.PinnedGrenade.IncreaseFuseSetting += PinnedGrenade_IncreaseFuseSetting;
 
                 On.FistVR.FVRCappedGrenade.Start += FVRCappedGrenade_Start;
@@ -104,6 +101,25 @@ namespace AccessibilityOptions
         {
             self.GetComponent<OneHandedPinnedGrenade>().UpdateInteraction_Hooked(self, hand);
             orig(self, hand);
+        }
+        private void PinnedGrenade_ReleaseLever(On.FistVR.PinnedGrenade.orig_ReleaseLever orig, PinnedGrenade self)
+        {
+            if (self.IsHeld)
+            {
+                FVRViveHand hand = self.m_hand;
+                if (!hand.IsInStreamlinedMode)
+                {
+                    Vector2 touchpadAxes = hand.Input.TouchpadAxes;
+                    if (hand.Input.TouchpadDown)
+                    {
+                        if (touchpadAxes.magnitude < 0.2f || Vector2.Angle(touchpadAxes, Vector2.up) > 45f)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            orig(self);
         }
         private void PinnedGrenade_IncreaseFuseSetting(On.FistVR.PinnedGrenade.orig_IncreaseFuseSetting orig, PinnedGrenade self)
         {

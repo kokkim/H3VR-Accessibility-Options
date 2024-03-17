@@ -23,8 +23,26 @@ namespace AccessibilityOptions
 
         public void UpdateInteraction_Hooked(PinnedGrenade self, FVRViveHand hand)
         {
-            //touchpad/button down starts pin pull
-            if ((hand.IsInStreamlinedMode && hand.Input.BYButtonDown) || (!hand.IsInStreamlinedMode && hand.Input.TouchpadDown))
+            bool pinPullButtonPressed = false, fuseSettingButtonPressed = false;
+
+            //touchpad top/BY button down starts pin pull
+            if (hand.IsInStreamlinedMode)
+            {
+                if (hand.Input.BYButtonDown) pinPullButtonPressed = true;
+                //touchpad bottom/AX button advances fuse setting
+                if (hand.Input.AXButtonDown) fuseSettingButtonPressed = true;
+            }
+            else
+            {
+                Vector2 touchpadAxes = hand.Input.TouchpadAxes;
+                if (hand.Input.TouchpadDown && touchpadAxes.magnitude > 0.2f)
+                {
+                    if (Vector2.Angle(touchpadAxes, Vector2.up) <= 45f) pinPullButtonPressed = true;
+                    if (Vector2.Angle(touchpadAxes, Vector2.down) <= 45f) fuseSettingButtonPressed = true;
+                }
+            }
+
+            if (pinPullButtonPressed)
             {
                 for (int i = 0; i < self.m_rings.Count; i++)
                 {
@@ -37,7 +55,8 @@ namespace AccessibilityOptions
                     }
                 }
             }
-            //touchpad/button up stops pin pull
+
+            //touchpad/AX button up stops pin pull
             if ((hand.IsInStreamlinedMode && hand.Input.BYButtonUp) || (!hand.IsInStreamlinedMode && hand.Input.TouchpadUp))
             {
                 if (curRing != null)
@@ -51,9 +70,8 @@ namespace AccessibilityOptions
             if (pinBeingPulled) RemoteUpdatePinPos();
 
             //trigger pull advances Cyber Grenade fuse setting
-            if (hand.Input.TriggerFloat >= 0.8f && self.m_hasTriggeredUpSinceBegin)
+            if (fuseSettingButtonPressed)
             {
-                self.m_hasTriggeredUpSinceBegin = false;
                 if (self.FuseCylinder != null && !self.m_isPinPulled) OneHandedIncreaseFuseSetting(self);
             }
         }

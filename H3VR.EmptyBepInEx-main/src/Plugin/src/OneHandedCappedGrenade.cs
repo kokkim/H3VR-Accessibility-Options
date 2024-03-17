@@ -30,7 +30,23 @@ namespace AccessibilityOptions
 
         public void FVRFixedUpdate_Hooked(FVRCappedGrenade _self)
         {
-            if ((_self.m_hand.IsInStreamlinedMode && _self.m_hand.Input.BYButtonDown) || (!_self.m_hand.IsInStreamlinedMode && _self.m_hand.Input.TouchpadDown))
+			bool doRemoveCap = false;
+			FVRViveHand hand = _self.m_hand;
+
+			if (hand.IsInStreamlinedMode)
+            {
+				if (hand.Input.BYButtonDown) doRemoveCap = true;
+
+			}
+            else
+            {
+				Vector2 touchpadAxes = hand.Input.TouchpadAxes;
+				if (hand.Input.TouchpadDown && touchpadAxes.magnitude > 0.2f)
+				{
+					if (Vector2.Angle(touchpadAxes, Vector2.up) <= 45f) doRemoveCap = true;
+				}
+			}
+            if (doRemoveCap)
 			{
 				if (!_self.IsPrimaryCapRemoved)
 				{
