@@ -33,37 +33,29 @@ namespace AccessibilityOptions
 
         private void ClosedBoltForeHandle_UpdateInteraction(On.FistVR.ClosedBoltForeHandle.orig_UpdateInteraction orig, ClosedBoltForeHandle self, FVRViveHand hand)
         {
-            Debug.Log("1");
             Vector2 touchpadAxes = hand.Input.TouchpadAxes;
             if (self.Weapon.IsAltHeld)
             {
-                Debug.Log("2");
                 bool canUnlock = false;
                 if (hand.IsInStreamlinedMode)
                 {
-                    Debug.Log("3");
                     if (hand.Input.BYButtonDown)
                     {
-                        Debug.Log("4");
                         canUnlock = true;
                     }
                 }
                 else if (hand.Input.TouchpadDown && Vector2.Angle(Vector2.up, touchpadAxes) < 45f && touchpadAxes.magnitude > 0.2f)
                 {
-                    Debug.Log("5");
                     canUnlock = true;
                 }
-                Debug.Log("6");
 
-                //Fix for missing boolean in plugin
-                bool canSwap = (ClosedBoltForeHandle)self.GetType().GetField("CanSwap").GetValue(self);
-                Debug.Log("7");
-                if (canUnlock && canSwap)
+                //Old fix for missing boolean in plugin, preserved until tested without
+                //bool canSwap = (ClosedBoltForeHandle)self.GetType().GetField("CanSwap").GetValue(self);
+
+                if (canUnlock && self.CanSwap)
                 {
-                    Debug.Log("8");
                     self.AttemptToToggleMode();
                 }
-                Debug.Log("9");
             }
         }
 

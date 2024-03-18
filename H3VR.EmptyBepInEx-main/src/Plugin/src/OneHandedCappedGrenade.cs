@@ -67,9 +67,14 @@ namespace AccessibilityOptions
 				SM.PlayCoreSound(FVRPooledAudioType.GenericClose, _self.AudEvent_CapRemovePrimary, base.transform.position);
 				_self.IsPrimaryCapRemoved = true;
 
+				//old implementation, still here until test
+
 				//fix for Holy Horseshoe Grenade
-				uncapAudioSource = (AudioSource)_self.GetType().GetField("AudOnUncapped").GetValue(_self);
-				uncapAudioSource?.Play();
+				//uncapAudioSource = (AudioSource)_self.GetType().GetField("AudOnUncapped").GetValue(_self);
+				//uncapAudioSource?.Play();
+
+				//new implementation
+				_self.AudOnUncapped.Play();
 			}
 			else
 			{
