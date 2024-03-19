@@ -49,9 +49,6 @@ namespace AccessibilityOptions
                     canUnlock = true;
                 }
 
-                //Old fix for missing boolean in plugin, preserved until tested without
-                //bool canSwap = (ClosedBoltForeHandle)self.GetType().GetField("CanSwap").GetValue(self);
-
                 if (canUnlock && self.CanSwap)
                 {
                     self.AttemptToToggleMode();

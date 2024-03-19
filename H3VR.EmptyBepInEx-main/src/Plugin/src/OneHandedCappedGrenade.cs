@@ -9,7 +9,6 @@ namespace AccessibilityOptions
     class OneHandedCappedGrenade : MonoBehaviour
     {
 		FVRCappedGrenadeCap primaryCap, secondaryCap;
-		AudioSource? uncapAudioSource;
 
 		void Awake()
         {
@@ -36,7 +35,6 @@ namespace AccessibilityOptions
 			if (hand.IsInStreamlinedMode)
             {
 				if (hand.Input.BYButtonDown) doRemoveCap = true;
-
 			}
             else
             {
@@ -66,15 +64,7 @@ namespace AccessibilityOptions
 			{
 				SM.PlayCoreSound(FVRPooledAudioType.GenericClose, _self.AudEvent_CapRemovePrimary, base.transform.position);
 				_self.IsPrimaryCapRemoved = true;
-
-				//old implementation, still here until test
-
-				//fix for Holy Horseshoe Grenade
-				//uncapAudioSource = (AudioSource)_self.GetType().GetField("AudOnUncapped").GetValue(_self);
-				//uncapAudioSource?.Play();
-
-				//new implementation
-				_self.AudOnUncapped.Play();
+				if (_self.AudOnUncapped != null) _self.AudOnUncapped.Play();
 			}
 			else
 			{
