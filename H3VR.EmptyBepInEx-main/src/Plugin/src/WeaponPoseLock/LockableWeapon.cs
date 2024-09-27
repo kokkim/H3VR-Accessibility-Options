@@ -46,12 +46,12 @@ namespace AccessibilityOptions
 
         WeaponLockState lockState;
 
-        public abstract bool CanFire();
         /// <summary>
         /// Returns true on one of two conditions:
         /// 1. If the trigger is held, has the weapon's trigger reset?
         /// 2. When the trigger is pulled, will the weapon's striker/firing pin get released?
         /// </summary>
+        public abstract bool CanFire();
 
         public virtual bool IsBoltMoving()
         {
@@ -59,6 +59,11 @@ namespace AccessibilityOptions
             return false;
         }
 
+        /// <summary>
+        /// Checks trigger pull amount and the current chamber's load state
+        /// If trigger is held for long enough, Update() locks it
+        /// </summary>
+        /// <param name="_isFiring"></param>
         public void CheckChamberTriggerAmt(bool _isFiring)
         {
             if (thisFirearm.m_hand?.Input.TriggerFloat >= 0.6f)

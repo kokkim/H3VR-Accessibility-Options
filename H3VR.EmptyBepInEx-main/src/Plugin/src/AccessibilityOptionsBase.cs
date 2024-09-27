@@ -237,6 +237,7 @@ namespace AccessibilityOptions
 				On.FistVR.FVRFireArm.Recoil += FVRFireArm_Recoil;
 			}
 
+			//Hoverbench
 			if (oneHandedHoverBench.Value)
             {
                 On.FistVR.FVRPivotLocker.TryToLockObject += FVRPivotLocker_TryToLockObject;

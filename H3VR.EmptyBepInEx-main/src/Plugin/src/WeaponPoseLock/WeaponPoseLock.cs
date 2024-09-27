@@ -65,6 +65,7 @@ namespace AccessibilityOptions
             lockedWeaponProxy = Instantiate(new GameObject(), GM.CurrentPlayerBody.gameObject.transform);
             lockedWeaponProxy.name = "lockedWeaponProxy";
 
+            //Refreshes the shot fired event to work in the new scene
             GM.CurrentSceneSettings.ShotFiredEvent -= OnShotFired;
             GM.CurrentSceneSettings.ShotFiredEvent += OnShotFired;
         }
@@ -73,12 +74,20 @@ namespace AccessibilityOptions
         {
             orig(self);
 
-            LockableWeaponDict.TryGetValue(self.GetType(), out Type temp);
-
-            if (temp != null)
-            {
-                LockableWeapon newLockable = (LockableWeapon)self.gameObject.AddComponent(temp);
-            }
+            //Check recursively for dictionary classes
+            var derived = self.GetType();
+            do {
+                if (derived != null)
+                {
+                    LockableWeaponDict.TryGetValue(derived, out Type weaponLockType);
+                    if (weaponLockType != null)
+                    {
+                        self.gameObject.AddComponent(weaponLockType);
+                        break;
+                    }
+                    derived = derived.BaseType; //Gets the child class of derived
+                }
+            } while (derived != null);
         }
 
         //To check if the player grabs the currently locked weapon
@@ -133,19 +142,19 @@ namespace AccessibilityOptions
         private void FVRQuickBeltSlot_MoveContentsInstant(On.FistVR.FVRQuickBeltSlot.orig_MoveContentsInstant orig, FVRQuickBeltSlot self, Vector3 dir)
         {
             if (!IsQBWeaponLocked(self)) orig(self, dir);
-            else Debug.Log("Blocked MovecontentsInstant");
+            //else Debug.Log("Blocked MovecontentsInstant");
         }
 
         private void FVRQuickBeltSlot_MoveContents(On.FistVR.FVRQuickBeltSlot.orig_MoveContents orig, FVRQuickBeltSlot self, Vector3 dir)
         {
             if (!IsQBWeaponLocked(self)) orig(self, dir);
-            else Debug.Log("Blocked Movecontents");
+            //else Debug.Log("Blocked Movecontents");
         }
 
         private void FVRQuickBeltSlot_MoveContentsCheap(On.FistVR.FVRQuickBeltSlot.orig_MoveContentsCheap orig, FVRQuickBeltSlot self, Vector3 dir)
         {
             if (!IsQBWeaponLocked(self)) orig(self, dir);
-            else Debug.Log("Blocked MovecontentsCheap");
+            //else Debug.Log("Blocked MovecontentsCheap");
         }
 
         bool IsQBWeaponLocked(FVRQuickBeltSlot slot)
@@ -154,7 +163,7 @@ namespace AccessibilityOptions
             {
                 if (currentlyLockedWeapon == slot.GetComponent<LockableWeapon>())
                 {
-                    Debug.Log("Blocked locked weapon from holstering");
+                    //Debug.Log("Blocked locked weapon from holstering");
                     return true;
                 }
             }
