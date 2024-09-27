@@ -40,7 +40,7 @@ namespace AccessibilityOptions
 
             //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
 
-            //temporary, will add an automatic method later
+            //I would have automated this, but I don't know how
             LockableWeaponDict[typeof(BoltActionRifle)] = typeof(LockableBoltActionRifle);
             LockableWeaponDict[typeof(TubeFedShotgun)] = typeof(LockableTubeFedShotgun);
             LockableWeaponDict[typeof(ClosedBoltWeapon)] = typeof(LockableClosedBoltWeapon);
@@ -51,10 +51,12 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(SingleActionRevolver)] = typeof(LockableSingleActionRevolver);
             LockableWeaponDict[typeof(Flaregun)] = typeof(LockableFlaregun);
             LockableWeaponDict[typeof(BreakActionWeapon)] = typeof(LockableBreakActionWeapon);
-            LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);  //broken until Anton fixes FVRUpdate()
+            LockableWeaponDict[typeof(Derringer)] = typeof(LockableDerringer);
             LockableWeaponDict[typeof(RevolvingShotgun)] = typeof(LockableRevolvingShotgun);
             LockableWeaponDict[typeof(RollingBlock)] = typeof(LockableRollingBlock);
             LockableWeaponDict[typeof(LeverActionFirearm)] = typeof(LockableLeverActionFirearm); //WIP, may need a cop-out solution
+            LockableWeaponDict[typeof(RPG7)] = typeof(LockableRPG7);    //Untested
+
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)

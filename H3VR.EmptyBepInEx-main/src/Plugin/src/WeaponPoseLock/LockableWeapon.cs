@@ -7,7 +7,7 @@ namespace AccessibilityOptions
 {
     public abstract class LockableWeapon<T> : LockableWeapon where T : MonoBehaviour
     {
-        protected T Target { get; private set; }
+        protected T Target { get; private set; }    //Unused for now
 
         protected virtual void Awake()
         {

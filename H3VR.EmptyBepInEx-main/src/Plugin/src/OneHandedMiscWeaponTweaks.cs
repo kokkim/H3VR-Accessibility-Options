@@ -29,6 +29,12 @@ namespace AccessibilityOptions
                 On.FistVR.TubeFedShotgunHandle.UpdateHandle += TubeFedShotgunHandle_UpdateHandle;
                 On.FistVR.ClosedBoltForeHandle.UpdateInteraction += ClosedBoltForeHandle_UpdateInteraction;
             }
+
+            if (AccessibilityOptionsBase.RPG7MainHandControlsEnabled.Value)
+            {
+                On.FistVR.RPG7.UpdateInteraction += RPG7_UpdateInteraction;
+                On.FistVR.FVRAlternateGrip.BeginInteraction += FVRAlternateGrip_BeginInteraction;
+            }
         }
 
         private void ClosedBoltForeHandle_UpdateInteraction(On.FistVR.ClosedBoltForeHandle.orig_UpdateInteraction orig, ClosedBoltForeHandle self, FVRViveHand hand)
@@ -62,10 +68,17 @@ namespace AccessibilityOptions
 
             On.FistVR.PinnedGrenade.Awake -= PinnedGrenade_Awake;
             On.FistVR.PinnedGrenade.UpdateInteraction -= PinnedGrenade_UpdateInteraction;
+            On.FistVR.PinnedGrenade.ReleaseLever -= PinnedGrenade_ReleaseLever;
             On.FistVR.PinnedGrenade.IncreaseFuseSetting -= PinnedGrenade_IncreaseFuseSetting;
 
             On.FistVR.FVRCappedGrenade.Start -= FVRCappedGrenade_Start;
             On.FistVR.FVRCappedGrenade.FVRFixedUpdate -= FVRCappedGrenade_FVRFixedUpdate;
+
+            On.FistVR.TubeFedShotgunHandle.UpdateHandle -= TubeFedShotgunHandle_UpdateHandle;
+            On.FistVR.ClosedBoltForeHandle.UpdateInteraction -= ClosedBoltForeHandle_UpdateInteraction;
+
+            On.FistVR.RPG7.UpdateInteraction -= RPG7_UpdateInteraction;
+            On.FistVR.FVRAlternateGrip.BeginInteraction -= FVRAlternateGrip_BeginInteraction;
         }
 
         #region single-action revolvers
@@ -161,6 +174,39 @@ namespace AccessibilityOptions
         #region ClosedBoltWeapon & ClosedBoltForeHandle
 
         #endregion
+        #endregion
+
+        #region RPG7
+        private void RPG7_UpdateInteraction(On.FistVR.RPG7.orig_UpdateInteraction orig, RPG7 self, FVRViveHand hand)
+        {
+            orig(self, hand);
+
+            //Copied from RPG7Foregrip
+            bool doHammerCock = false;
+            if ((hand.IsInStreamlinedMode && hand.Input.AXButtonDown) || (!hand.IsInStreamlinedMode && hand.Input.TouchpadDown))
+            {
+                doHammerCock = true;
+            }
+            if (doHammerCock) self.CockHammer();
+
+            if (hand.Input.TriggerDown) self.Fire();
+            self.UpdateTriggerRot(hand.Input.TriggerFloat);
+        }
+
+        private void FVRAlternateGrip_BeginInteraction(On.FistVR.FVRAlternateGrip.orig_BeginInteraction orig, FVRAlternateGrip self, FVRViveHand hand)
+        {
+            if (self is RPG7Foregrip)
+            {
+                RPG7Foregrip? grip = self as RPG7Foregrip;
+                if (grip != null && !grip.RPG.IsHeld)
+                {
+                    grip.RPG.BeginInteraction(hand);
+                    return;
+                }
+            }
+            orig(self, hand);
+            return;
+        }
         #endregion
     }
 }

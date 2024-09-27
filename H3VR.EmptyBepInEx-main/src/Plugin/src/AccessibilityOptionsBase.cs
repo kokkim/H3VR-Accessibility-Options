@@ -10,8 +10,7 @@ namespace AccessibilityOptions
 {
 	/// <summary>
 	/// --------------------------------TODO------------------------------
-	/// - MISSING BASE METHOD CALLS:
-	/// Derringer.FVRUpdate()
+	/// RPG7 automatic grip switch
 	/// 
 	/// GBeamer.FVRUpdate() (Method missing entirely, would have to use FVRFixedUpdate())
 	/// LeverActionFirearm.FVRUpdate() (ditto)
@@ -27,7 +26,6 @@ namespace AccessibilityOptions
 	/// HIGH PRIORITY
 	/// - (Faster operating speed for) TubeFedShotgun
 	/// - (Less clunky operation for) LeverActionFirearm
-	/// - Derringer (Needs base method call in FVRUpdate)
 	/// 
 	/// LOW PRIORITY
 	/// - SosigWeaponPlayerInterface
@@ -39,7 +37,7 @@ namespace AccessibilityOptions
 	/// - RemoteMissileLauncher
 	/// - Minigun
 	/// - StingerLauncher
-	/// - RPG7
+	/// - RPG7--------------------------------WIP
 	/// - Airgun
 	/// - GBeamer
 	/// - SRG
@@ -97,6 +95,8 @@ namespace AccessibilityOptions
 		public static ConfigEntry<float> pinnedGrenadePinPullDuration;
 
 		public static ConfigEntry<bool> oneHandedPumpReleaseEnabled;
+
+		public static ConfigEntry<bool> RPG7MainHandControlsEnabled;
         #endregion
 
         private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
@@ -189,14 +189,19 @@ namespace AccessibilityOptions
 												   "Pull pins by holding the touchpad or AX face buttons");
 
 			pinnedGrenadePinPullDuration = Config.Bind("Miscellaneous Weapon Tweaks",
-												 "Pinned Grenade Pin Pull Duration",
-												 0.5f,
-												 "How long (in seconds) the button needs to be held down to pull out a grenade pin (set to 0 for instant)");
+													   "Pinned Grenade Pin Pull Duration",
+													   0.5f,
+													   "How long (in seconds) the button needs to be held down to pull out a grenade pin (set to 0 for instant)");
 
 			oneHandedPumpReleaseEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
 													  "Enable One-Handed Pump Release",
 													  true,
 													  "Unlock pump-action weapon pumps by pulling the trigger while holding the pump");
+
+			RPG7MainHandControlsEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
+													  "Enable RPG7 Main Hand Controls",
+													  true,
+													  "Cock the hammer and pull the trigger on an RPG7 through the main grip");
 		}
 
 		OneHandedWristMenu oneHandedWristMenu;
