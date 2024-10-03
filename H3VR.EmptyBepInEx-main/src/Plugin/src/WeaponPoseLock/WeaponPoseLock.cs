@@ -55,7 +55,11 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(RevolvingShotgun)] = typeof(LockableRevolvingShotgun);
             LockableWeaponDict[typeof(RollingBlock)] = typeof(LockableRollingBlock);
             LockableWeaponDict[typeof(LeverActionFirearm)] = typeof(LockableLeverActionFirearm); //WIP, may need a cop-out solution
-            LockableWeaponDict[typeof(RPG7)] = typeof(LockableRPG7);    //Untested
+            LockableWeaponDict[typeof(RPG7)] = typeof(LockableRPG7);
+            LockableWeaponDict[typeof(RailTater)] = typeof(LockableRailTater);
+            LockableWeaponDict[typeof(CarlGustaf)] = typeof(LockableCarlGustaf);
+            LockableWeaponDict[typeof(Airgun)] = typeof(LockableAirgun);
+            LockableWeaponDict[typeof(SRG)] = typeof(LockableSRG);
 
         }
 

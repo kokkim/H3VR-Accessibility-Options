@@ -176,7 +176,7 @@ namespace AccessibilityOptions
         #endregion
         #endregion
 
-        #region RPG7
+        #region RPG7 WIP
         private void RPG7_UpdateInteraction(On.FistVR.RPG7.orig_UpdateInteraction orig, RPG7 self, FVRViveHand hand)
         {
             orig(self, hand);
@@ -191,6 +191,13 @@ namespace AccessibilityOptions
 
             if (hand.Input.TriggerDown) self.Fire();
             self.UpdateTriggerRot(hand.Input.TriggerFloat);
+
+            //Fix to prevent getting stuck on hand
+            if (self.m_hand != null && self.m_hand.CurrentInteractable == null)
+            {
+                Debug.Log("a");
+                self.EndInteraction(self.m_hand);
+            }
         }
 
         private void FVRAlternateGrip_BeginInteraction(On.FistVR.FVRAlternateGrip.orig_BeginInteraction orig, FVRAlternateGrip self, FVRViveHand hand)
@@ -200,12 +207,12 @@ namespace AccessibilityOptions
                 RPG7Foregrip? grip = self as RPG7Foregrip;
                 if (grip != null && !grip.RPG.IsHeld)
                 {
+                    hand.CurrentInteractable = grip.RPG;
                     grip.RPG.BeginInteraction(hand);
                     return;
                 }
             }
             orig(self, hand);
-            return;
         }
         #endregion
     }

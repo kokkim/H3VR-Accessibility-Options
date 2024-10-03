@@ -29,23 +29,17 @@ namespace AccessibilityOptions
 	/// 
 	/// LOW PRIORITY
 	/// - SosigWeaponPlayerInterface
-	/// - Airgun
 	/// - SimpleLauncher (and Whizzbanger)
-	/// - CarlGustaf
 	/// - SimpleLauncher2
 	/// - M72
 	/// - RemoteMissileLauncher
 	/// - Minigun
 	/// - StingerLauncher
-	/// - RPG7--------------------------------WIP
-	/// - Airgun
 	/// - GBeamer
-	/// - SRG
 	/// - FlameThrower
 	/// - sblp
 	/// - MeatNailer
 	/// - PotatoGun
-	/// - RailTater
 	/// - HCB
 	/// - Girandoni
 	/// - FlintlockWeapon
