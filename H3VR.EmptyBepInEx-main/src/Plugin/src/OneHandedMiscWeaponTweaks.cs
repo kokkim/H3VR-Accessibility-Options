@@ -4,6 +4,7 @@ using FistVR;
 
 namespace AccessibilityOptions
 {
+    //Contains numerous MMHOOK hooks and other miscellaneous tweaks for one-handed operation, all configurable
     class OneHandedMiscWeaponTweaks : MonoBehaviour
     {
         void Awake()
@@ -34,6 +35,11 @@ namespace AccessibilityOptions
             {
                 On.FistVR.RPG7.UpdateInteraction += RPG7_UpdateInteraction;
                 On.FistVR.FVRAlternateGrip.BeginInteraction += FVRAlternateGrip_BeginInteraction;
+            }
+
+            if (AccessibilityOptionsBase.oneHandedMinigunEnabled.Value)
+            {
+                On.FistVR.Minigun.Fire += Minigun_Fire;
             }
         }
 
@@ -79,6 +85,8 @@ namespace AccessibilityOptions
 
             On.FistVR.RPG7.UpdateInteraction -= RPG7_UpdateInteraction;
             On.FistVR.FVRAlternateGrip.BeginInteraction -= FVRAlternateGrip_BeginInteraction;
+
+            On.FistVR.Minigun.Fire -= Minigun_Fire;
         }
 
         #region single-action revolvers
@@ -176,7 +184,7 @@ namespace AccessibilityOptions
         #endregion
         #endregion
 
-        #region RPG7 WIP
+        #region RPG7
         private void RPG7_UpdateInteraction(On.FistVR.RPG7.orig_UpdateInteraction orig, RPG7 self, FVRViveHand hand)
         {
             orig(self, hand);
@@ -213,6 +221,14 @@ namespace AccessibilityOptions
                 }
             }
             orig(self, hand);
+        }
+        #endregion
+
+        #region Minigun
+        private void Minigun_Fire(On.FistVR.Minigun.orig_Fire orig, Minigun self)
+        {
+            orig(self);
+            self.DestabilizedShots = 0;
         }
         #endregion
     }

@@ -10,7 +10,7 @@ namespace AccessibilityOptions
     {
         public static WeaponPoseLock instance;
 
-        public Dictionary<Type, Type> LockableWeaponDict = new();
+        public Dictionary<Type, Type> LockableWeaponDict = new();   //Contains references to every supported weapon type and its locking class
 
         public float triggerDuration;
         public LockableWeapon currentlyLockedWeapon;
@@ -38,6 +38,7 @@ namespace AccessibilityOptions
 
             //-------------------------------------------------DICTIONARY ENTRIES
 
+            #region Dictionary Entries
             //IEnumerable<LockableWeapon> lockableWeaponClasses = ReflectiveEnumerator.GetEnumerableOfType<LockableWeapon>();
 
             //I would have automated this, but I don't know how
@@ -60,7 +61,11 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(CarlGustaf)] = typeof(LockableCarlGustaf);
             LockableWeaponDict[typeof(Airgun)] = typeof(LockableAirgun);
             LockableWeaponDict[typeof(SRG)] = typeof(LockableSRG);
-
+            LockableWeaponDict[typeof(SimpleLauncher)] = typeof(LockableSimpleLauncher);
+            LockableWeaponDict[typeof(SimpleLauncher2)] = typeof(LockableSimpleLauncher2);
+            LockableWeaponDict[typeof(M72)] = typeof(LockableM72);
+            LockableWeaponDict[typeof(Minigun)] = typeof(LockableMinigun);
+            #endregion
         }
 
         private void GM_InitScene(On.FistVR.GM.orig_InitScene orig, GM self)
@@ -140,7 +145,7 @@ namespace AccessibilityOptions
         //Unlocks weapon upon shooting 
         void OnShotFired(FVRFireArm _firearm)
         {
-            if (currentlyLockedWeapon != null && _firearm == currentlyLockedWeapon.thisFirearm) currentlyLockedWeapon.UnlockWeapon();
+            if (currentlyLockedWeapon != null && _firearm == currentlyLockedWeapon.thisFirearm && currentlyLockedWeapon.unlocksAfterFiring) currentlyLockedWeapon.UnlockWeapon();
         }
 
         #region MoveContents

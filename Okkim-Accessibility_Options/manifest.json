@@ -1,0 +1,12 @@
+{
+	"name":"Accessibility_Options",
+	"author":"Okkim",
+	"version_number":"1.1.0",
+	"description":"Adds accessibility options, including making the game playable with one hand.",
+	"website_url":"https://github.com/kokkim/H3VR-Accessibility-Options",
+	"dependencies":
+	[
+		"nrgill28-HookGenPatcher_H3VR-1.2.3",
+		"nrgill28-Sodalite-1.4.2"
+	]
+}

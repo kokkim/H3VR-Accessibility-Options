@@ -27,6 +27,7 @@ namespace AccessibilityOptions
         }
     }
 
+    //Base class for every weapon locking script
     public abstract class LockableWeapon : MonoBehaviour
     {
         public FVRFireArm thisFirearm;
@@ -36,6 +37,8 @@ namespace AccessibilityOptions
 
         float curTriggerDuration;
         bool isValidForPoseLock;
+
+        public bool unlocksAfterFiring { get; protected set; } = true;  //accessible anywhere, but only modified by child class
 
         enum WeaponLockState
         {

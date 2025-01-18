@@ -5,22 +5,22 @@ using UnityEngine;
 
 namespace AccessibilityOptions
 {
-    public class LockableBAP : LockableWeapon<BAP>
+    public class LockableM72 : LockableWeapon<M72>
     {
-        BAP bap;
+        M72 m72;
 
         protected override void Awake()
         {
             base.Awake();
-            bap = thisFirearm as BAP;
+            m72 = thisFirearm as M72;
         }
 
         public override bool CanFire()
         {
-            if (bap != null)
+            if (m72 != null)
             {
-                //Safe
-                if (bap.FireSelector_Modes[bap.m_fireSelectorMode].ModeType == BAP.FireSelectorModeType.Safe) return false;
+                //Check for full or spent?
+                if (m72.m_isSafetyEngaged || m72.TState != M72.TubeState.Rear || !m72.Chamber.IsFull) return false;
             }
             return true;
         }

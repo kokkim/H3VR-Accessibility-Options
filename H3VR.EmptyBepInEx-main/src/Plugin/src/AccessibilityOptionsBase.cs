@@ -10,7 +10,7 @@ namespace AccessibilityOptions
 {
 	/// <summary>
 	/// --------------------------------TODO------------------------------
-	/// RPG7 automatic grip switch
+	/// RPG7 sticking to the player's hand
 	/// 
 	/// GBeamer.FVRUpdate() (Method missing entirely, would have to use FVRFixedUpdate())
 	/// LeverActionFirearm.FVRUpdate() (ditto)
@@ -29,11 +29,11 @@ namespace AccessibilityOptions
 	/// 
 	/// LOW PRIORITY
 	/// - SosigWeaponPlayerInterface
-	/// - SimpleLauncher (and Whizzbanger)
-	/// - SimpleLauncher2
-	/// - M72
+	/// - SimpleLauncher (and Whizzbanger)------WIP, can't be hit if harnessed
+	/// - SimpleLauncher2-----------------------WIP
+	/// - M72-----------------------------------WIP
+	/// - Minigun-------------------------------WIP, locks even with magazine inserted
 	/// - RemoteMissileLauncher
-	/// - Minigun
 	/// - StingerLauncher
 	/// - GBeamer
 	/// - FlameThrower
@@ -47,7 +47,6 @@ namespace AccessibilityOptions
 	/// - LAPD2019
 	/// - MF2_RL
 	/// - RGM40
-	/// - SRG 
 	/// </summary>
 
 
@@ -91,6 +90,8 @@ namespace AccessibilityOptions
 		public static ConfigEntry<bool> oneHandedPumpReleaseEnabled;
 
 		public static ConfigEntry<bool> RPG7MainHandControlsEnabled;
+
+		public static ConfigEntry<bool> oneHandedMinigunEnabled;
         #endregion
 
         private const string ASSET_BUNDLE_NAME = "accessibilityoptions";
@@ -196,6 +197,11 @@ namespace AccessibilityOptions
 													  "Enable RPG7 Main Hand Controls",
 													  true,
 													  "Cock the hammer and pull the trigger on an RPG7 through the main grip");
+
+			oneHandedMinigunEnabled = Config.Bind("Miscellaneous Weapon Tweaks",
+												  "Enable One-Handed Minigun",
+												  true,
+												  "Shoot the minigun without it flying out of your hand");
 		}
 
 		OneHandedWristMenu oneHandedWristMenu;
