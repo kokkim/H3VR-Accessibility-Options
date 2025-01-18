@@ -64,7 +64,7 @@ namespace AccessibilityOptions
             LockableWeaponDict[typeof(SimpleLauncher)] = typeof(LockableSimpleLauncher);
             LockableWeaponDict[typeof(SimpleLauncher2)] = typeof(LockableSimpleLauncher2);
             LockableWeaponDict[typeof(M72)] = typeof(LockableM72);
-            LockableWeaponDict[typeof(Minigun)] = typeof(LockableMinigun);
+            LockableWeaponDict[typeof(Minigun)] = typeof(LockableMinigun);  //WIP, locks regardless of magazine state
             #endregion
         }
 
@@ -136,8 +136,6 @@ namespace AccessibilityOptions
                     {
                         curWep.CheckChamberTriggerAmt(curWep.CanFire());
                     }
-
-                    //if the current firearm is not any of the ones specified, it is excluded
                 }
             }
         }

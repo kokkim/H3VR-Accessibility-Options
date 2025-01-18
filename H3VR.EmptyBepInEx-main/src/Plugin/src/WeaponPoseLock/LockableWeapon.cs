@@ -39,6 +39,7 @@ namespace AccessibilityOptions
         bool isValidForPoseLock;
 
         public bool unlocksAfterFiring { get; protected set; } = true;  //accessible anywhere, but only modified by child class
+        public bool skipChamberCheck { get; protected set; }  //skips over the chamber check, used by minigun
 
         enum WeaponLockState
         {
@@ -76,7 +77,7 @@ namespace AccessibilityOptions
                     isValidForPoseLock = true;
                     return;
                 }
-                else
+                else if (!skipChamberCheck) //edgecase required for miniguns, can be used by any lockable fvrfirearm
                 {
                     bool chamberSafe = true;
                     foreach (FVRFireArmChamber chamber in chambers)
@@ -87,11 +88,8 @@ namespace AccessibilityOptions
                             break;
                         }
                     }
-                    if (chamberSafe)
-                    {
-                        isValidForPoseLock = true;
-                        return;
-                    }
+                    isValidForPoseLock = chamberSafe;
+                    return;
                 }
             }
             isValidForPoseLock = false;

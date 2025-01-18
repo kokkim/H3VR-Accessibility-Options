@@ -29,9 +29,6 @@ namespace AccessibilityOptions
 	/// 
 	/// LOW PRIORITY
 	/// - SosigWeaponPlayerInterface
-	/// - SimpleLauncher (and Whizzbanger)------WIP, can't be hit if harnessed
-	/// - SimpleLauncher2-----------------------WIP
-	/// - M72-----------------------------------WIP
 	/// - Minigun-------------------------------WIP, locks even with magazine inserted
 	/// - RemoteMissileLauncher
 	/// - StingerLauncher
