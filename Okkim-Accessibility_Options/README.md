@@ -4,11 +4,13 @@ Adds multiple accessibility options to improve the playability for those with di
 
 ### Lockable Weapons!
 - Hold trigger on an empty or spent chamber to lock it into the air! Works for all the most common weapon types. Further support for more bespoke weapon types will come later down the line.
+- This system is recursive, so modded weapon types that inherit base game weapon types are also supported!
 
 ### Miscellaneous Weapon Tweaks!
 - Single-action revolvers: The cylinder now automatically advances one step when inserting a round.
 - Pinned & capped grenades: Pressing the touchpads will pull out each pin. The amount of time each pin takes to pull is configurable.
 - Pump-action weapons: The pump's slide release can now be operated by holding the trigger while holding the foregrip with one hand.
+- Miniguns: The minigun will no longer fly out of your hand when firing one-handed! Framerate not guaranteed if abused.
 
 ### Quality-of-Life Changes!
 - Forced two-handed recoil: Forces recoil to always act as if you're firing with two hands.
